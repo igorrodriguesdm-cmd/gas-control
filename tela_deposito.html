@@ -2,252 +2,96 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Depósito - Operacional Completo</title>
+    <title>GasControl - Depósito</title>
     <style>
-        :root {
-            --primary-color: #2563eb;
-            --success-color: #16a34a;
-            --warning-color: #ca8a04;
-            --danger-color: #dc2626;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-color: #1e293b;
-            --border-color: #e2e8f0;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 20px; }
-
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            background-color: var(--card-bg); padding: 20px; border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;
-        }
-
-        .container { display: grid; grid-template-columns: 1fr; gap: 20px; }
-        @media(min-width: 900px) { .container { grid-template-columns: 1fr 2fr; } }
-
-        .card {
-            background-color: var(--card-bg); padding: 20px; border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px;
-        }
-
-        .card h3 { margin-bottom: 15px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
-
-        /* Abas Operacionais */
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid var(--border-color); }
-        .tab-btn {
-            padding: 10px 15px; border: none; background: none; font-weight: bold;
-            color: #64748b; cursor: pointer; border-bottom: 3px solid transparent; width: auto;
-        }
-        .tab-btn.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
-
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-
-        /* Estoque */
-        .stock-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
-        .stock-box { padding: 15px; border-radius: 6px; color: white; }
-        .stock-box.cheias { background-color: var(--primary-color); }
-        .stock-box.vazias { background-color: var(--warning-color); }
-        .stock-box.defeitos { background-color: var(--danger-color); }
-        .stock-box span { display: block; font-size: 1.8rem; font-weight: bold; }
-
-        /* Formulários */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; }
-        input, select { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1rem; }
-        
-        button.btn-action {
-            width: 100%; padding: 12px; border: none; border-radius: 5px;
-            font-size: 1rem; font-weight: bold; color: white; cursor: pointer; margin-top: 5px;
-        }
-        .btn-venda { background-color: var(--success-color); }
-        .btn-carreta { background-color: var(--primary-color); }
-        .btn-transf { background-color: var(--warning-color); }
-        .btn-defeito { background-color: var(--danger-color); }
-
-        #msgStatus { margin-top: 10px; padding: 10px; border-radius: 5px; display: none; font-weight: bold; }
-        .msg-sucesso { background-color: #dcfce7; color: #166534; }
-        .msg-erro { background-color: #fee2e2; color: #991b1b; }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; font-size: 22px; }
+        .btn-sair { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; float: right; }
+        .card { background: #f8f9fa; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #ddd; }
+        .acoes { margin-top: 20px; display: flex; gap: 10px; }
+        button.acao { flex: 1; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        button.acao:hover { background: #218838; }
+        .msg { margin-top: 10px; font-weight: bold; color: green; text-align: center; }
     </style>
 </head>
 <body>
-
-    <header>
-        <div>
-            <h2 id="nomeDeposito">Carregando Depósito...</h2>
-            <p>Painel de Operações de Campo</p>
-        </div>
-        <button onclick="carregarEstoque()" style="width: auto; padding: 8px 15px; background-color: #64748b; color: white; border: none; border-radius: 4px; cursor: pointer;">🔄 Atualizar</button>
-    </header>
-
     <div class="container">
-        <!-- Lado Esquerdo: Resumo do Estoque Real -->
-        <div>
-            <div class="card">
-                <h3>Estoque Atual (Ao Vivo)</h3>
-                <div class="stock-grid">
-                    <div class="stock-box cheias">
-                        <small>Cheias</small>
-                        <span id="qtdCheias">0</span>
-                    </div>
-                    <div class="stock-box vazias">
-                        <small>Vazias</small>
-                        <span id="qtdVazias">0</span>
-                    </div>
-                    <div class="stock-box defeitos">
-                        <small>Defeito</small>
-                        <span id="qtdDefeitos">0</span>
-                    </div>
-                </div>
-            </div>
-            <div id="msgStatus"></div>
+        <button class="btn-sair" onclick="sair()">Sair</button>
+        <h1 id="titulo-deposito">Carregando...</h1>
+        
+        <div class="card">
+            <h3>Estoque Atual</h3>
+            <p>🈳 Botijões Cheios: <strong id="cheias">0</strong></p>
+            <p>⭕ Botijões Vazios: <strong id="vazias">0</strong></p>
+            <p>⚠️ Com Defeito: <strong id="defeito">0</strong></p>
         </div>
 
-        <!-- Lado Direito: Abas de Operações -->
-        <div>
-            <div class="card">
-                <div class="tabs">
-                    <button class="tab-btn active" onclick="openTab(event, 'tabVenda')">🛒 Nova Venda</button>
-                    <button class="tab-btn" onclick="openTab(event, 'tabCarreta')">🚚 Carreta (Entrada)</button>
-                    <button class="tab-btn" onclick="openTab(event, 'tabTransf')">🔄 Transferência</button>
-                    <button class="tab-btn" onclick="openTab(event, 'tabDefeito')">⚠️ Defeito</button>
-                </div>
-
-                <!-- 1. ABA DE VENDA -->
-                <div id="tabVenda" class="tab-content active">
-                    <form onsubmit="executarAcao(event, '/api/vender', {deposito_id: DEPOSITO_ID, quantidade: parseInt(vQtd.value), forma_pagamento: vPag.value})">
-                        <div class="form-group">
-                            <label>Quantidade de Botijas P13:</label>
-                            <input type="number" id="vQtd" value="1" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Forma de Pagamento:</label>
-                            <select id="vPag">
-                                <option value="Dinheiro">Dinheiro</option>
-                                <option value="PIX">PIX</option>
-                                <option value="Cartão de Débito">Cartão de Débito</option>
-                                <option value="Cartão de Crédito">Cartão de Crédito</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="btn-action btn-venda">CONFIRMAR VENDA REAL</button>
-                    </form>
-                </div>
-
-                <!-- 2. ABA DE ENTRADA DE CARRETA -->
-                <div id="tabCarreta" class="tab-content">
-                    <form onsubmit="executarAcao(event, '/api/entrada-carreta', {deposito_id: DEPOSITO_ID, quantidade: parseInt(cQtd.value), placa: cPlaca.value})">
-                        <div class="form-group">
-                            <label>Quantidade de Botijas Cheias Recebidas:</label>
-                            <input type="number" id="cQtd" value="100" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Placa do Caminhão / Nota Fiscal:</label>
-                            <input type="text" id="cPlaca" placeholder="Ex: ABC-1234 / NF 5432" required>
-                        </div>
-                        <button type="submit" class="btn-action btn-carreta">REGISTRAR ENTRADA DE CARRETA</button>
-                    </form>
-                </div>
-
-                <!-- 3. ABA DE TRANSFERÊNCIA -->
-                <div id="tabTransf" class="tab-content">
-                    <form onsubmit="executarAcao(event, '/api/transferir', {deposito_origem_id: DEPOSITO_ID, deposito_destino_id: parseInt(tDestino.value), tipo_botija: tTipo.value, quantidade: parseInt(tQtd.value)})">
-                        <div class="form-group">
-                            <label>Destino da Botija:</label>
-                            <select id="tDestino">
-                                <option value="2">Filial Norte</option>
-                                <option value="3">Filial Sul</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Tipo de Botija:</label>
-                            <select id="tTipo">
-                                <option value="cheia">Cheia</option>
-                                <option value="vazia">Vazia</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Quantidade:</label>
-                            <input type="number" id="tQtd" value="10" min="1" required>
-                        </div>
-                        <button type="submit" class="btn-action btn-transf">ENVIAR TRANSFERÊNCIA</button>
-                    </form>
-                </div>
-
-                <!-- 4. ABA DE DEFEITO -->
-                <div id="tabDefeito" class="tab-content">
-                    <form onsubmit="executarAcao(event, '/api/registrar-defeito', {deposito_id: DEPOSITO_ID, quantidade: parseInt(dQtd.value), motivo: dMotivo.value})">
-                        <div class="form-group">
-                            <label>Quantidade com Defeito/Vazamento:</label>
-                            <input type="number" id="dQtd" value="1" min="1" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Motivo da Avaria:</label>
-                            <input type="text" id="dMotivo" placeholder="Ex: Vazamento no Rosco, Válvula دانificada" required>
-                        </div>
-                        <button type="submit" class="btn-action btn-defeito">DAR BAIXA POR DEFEITO</button>
-                    </form>
-                </div>
-
-            </div>
+        <div class="acoes">
+            <button class="acao" onclick="realizarAcao('vender')">Registrar Venda (Cheia -> Vazia)</button>
+            <button class="acao" onclick="realizarAcao('carreta')">Entrada Carreta</button>
         </div>
+        <div id="mensagem" class="msg"></div>
     </div>
 
     <script>
-        const DEPOSITO_ID = 1;
+        const BACKEND_URL = 'https://gas-control-1.onrender.com';
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
 
-        function openTab(evt, tabName) {
-            let i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabcontent.length; i++) tabcontent[i].classList.remove("active");
-            tablinks = document.getElementsByClassName("tab-btn");
-            for (i = 0; i < tablinks.length; i++) tablinks[i].classList.remove("active");
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
+        if (!usuarioLogado) {
+            window.location.href = 'index.html';
         }
+
+        document.getElementById('titulo-deposito').innerText = `Depósito: ${usuarioLogado.deposito_nome || 'Local'}`;
 
         async function carregarEstoque() {
             try {
-                const response = await fetch(`https://gas-control-1.onrender.com/api/estoque/${depositoId}`);
+                const response = await fetch(`${BACKEND_URL}/api/estoque/${usuarioLogado.deposito_id}`);
                 const dados = await response.json();
-                document.getElementById('nomeDeposito').innerText = dados.nome;
-                document.getElementById('qtdCheias').innerText = dados.cheias;
-                document.getElementById('qtdVazias').innerText = dados.vazias;
-                document.getElementById('qtdDefeitos').innerText = dados.defeitos;
-            } catch (err) { console.error("Erro ao carregar:", err); }
+                
+                document.getElementById('cheias').innerText = dados.cheias;
+                document.getElementById('vazias').innerText = dados.vazias;
+                document.getElementById('defeito').innerText = dados.defeito;
+            } catch (err) {
+                console.error(err);
+                alert('Erro ao carregar estoque.');
+            }
         }
 
-        async function executarAcao(e, endpoint, payload) {
-            e.preventDefault();
-            const msgEl = document.getElementById('msgStatus');
+        async function realizarAcao(tipo) {
+            const endpoint = tipo === 'vender' ? 'vender' : 'entrada-carreta';
+            const qtdStr = prompt(tipo === 'vender' ? 'Quantas botijas foram vendidas?' : 'Quantas botijas cheias vieram na carreta?');
+            
+            if (!qtdStr || isNaN(qtdStr)) return;
+            const quantidade = parseInt(qtdStr);
+
             try {
-                const response = await fetch(`https://gas-control-1.onrender.com/api/${endpoint}`, {
+                const response = await fetch(`${BACKEND_URL}/api/${endpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ deposito_id: usuarioLogado.deposito_id, quantidade })
                 });
-                const res = await response.json();
+
+                const data = await response.json();
                 if (response.ok) {
-                    msgEl.className = 'msg-sucesso';
-                    msgEl.innerText = res.mensagem;
-                    msgEl.style.display = 'block';
+                    document.getElementById('mensagem').innerText = "Operação realizada com sucesso!";
                     carregarEstoque();
+                    setTimeout(() => document.getElementById('mensagem').innerText = '', 3000);
                 } else {
-                    msgEl.className = 'msg-erro';
-                    msgEl.innerText = res.erro;
-                    msgEl.style.display = 'block';
+                    alert(data.erro || 'Erro na operação.');
                 }
             } catch (err) {
-                msgEl.className = 'msg-erro';
-                msgEl.innerText = "Erro ao se comunicar com o backend!";
-                msgEl.style.display = 'block';
+                console.error(err);
+                alert('Erro ao se comunicar com o backend!');
             }
-            setTimeout(() => { msgEl.style.display = 'none'; }, 4000);
         }
 
-        window.onload = carregarEstoque;
+        function sair() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        carregarEstoque();
     </script>
 </body>
 </html>
