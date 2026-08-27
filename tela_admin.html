@@ -156,7 +156,7 @@
     <script>
         async function carregarDashboard() {
             try {
-                const res = await fetch('http://127.0.0.1:5000/api/admin/dashboard');
+                const res = await fetch('https://gas-control-1.onrender.com/api/admin/depositos');
                 const data = await res.json();
                 
                 if(res.ok) {
