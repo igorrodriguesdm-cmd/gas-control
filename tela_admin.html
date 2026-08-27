@@ -221,7 +221,7 @@
             };
             const msg = document.getElementById('msgDep');
 
-            const res = await fetch('http://127.0.0.1:5000/api/admin/criar-deposito', {
+            const res = await fetch('https://gas-control-1.onrender.com/api/admin/dashboard', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
@@ -246,7 +246,7 @@
             };
             const msg = document.getElementById('msgUser');
 
-            const res = await fetch('http://127.0.0.1:5000/api/admin/criar-usuario', {
+            const res = await fetch('https://gas-control-1.onrender.com/api/admin/dashboard', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
