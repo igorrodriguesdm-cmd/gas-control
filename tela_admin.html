@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GasControl - Painel Administrativo</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --border: #e2e8f0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg); color: var(--text); padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .kpi-card { background-color: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid var(--primary); }
+        .kpi-card h4 { font-size: 0.9rem; color: #64748b; }
+        .kpi-card span { font-size: 2rem; font-weight: bold; color: var(--primary); display: block; margin-top: 5px; }
+        .admin-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media(min-width: 900px) { .admin-grid { grid-template-columns: 1fr 1fr; } }
+        .card { background-color: var(--card-bg); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .card h3 { margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 10px; color: var(--primary); }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; }
+        input, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; }
+        button { padding: 10px 15px; background-color: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background-color: #1d4ed8; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background-color: #f1f5f9; }
+        .msg { margin-top: 10px; padding: 10px; border-radius: 5px; font-weight: bold; display: none; text-align: center; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div>
+            <h2>👑 Painel do Administrador Geral</h2>
+            <p>Visão global de todas as filiais e depósitos</p>
+        </div>
+        <div>
+            <button onclick="carregarDashboard()" style="background-color: #059669;">🔄 Atualizar Dados</button>
+            <button onclick="localStorage.clear(); window.location.href='login.html'" style="background-color: #dc2626; margin-left: 5px;">Sair</button>
+        </div>
+    </header>
+
+    <!-- KPIs Globais -->
+    <div class="kpi-grid">
+        <div class="kpi-card" style="border-left-color: #2563eb;">
+            <h4>Vendas Hoje</h4>
+            <span id="kpiVendas">0</span>
+        </div>
+        <div class="kpi-card" style="border-left-color: #16a34a;">
+            <h4>Total Cheias (Rede)</h4>
+            <span id="kpiCheias">0</span>
+        </div>
+        <div class="kpi-card" style="border-left-color: #ca8a04;">
+            <h4>Total Vazias (Rede)</h4>
+            <span id="kpiVazias">0</span>
+        </div>
+        <div class="kpi-card" style="border-left-color: #dc2626;">
+            <h4>Avarias / Defeitos</h4>
+            <span id="kpiDefeitos">0</span>
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <!-- Cadastrar Novo Depósito -->
+        <div class="card">
+            <h3>🏢 Cadastrar Novo Depósito / Filial</h3>
+            <form onsubmit="criarDeposito(event)">
+                <div class="form-group">
+                    <label>Nome da Filial / Depósito:</label>
+                    <input type="text" id="depNome" placeholder="Ex: Filial Sul" required>
+                </div>
+                <div class="form-group">
+                    <label>Estoque Inicial de Cheias:</label>
+                    <input type="number" id="depCheias" min="0" value="50" required>
+                </div>
+                <div class="form-group">
+                    <label>Estoque Inicial de Vazias:</label>
+                    <input type="number" id="depVazias" min="0" value="10" required>
+                </div>
+                <button type="submit">Criar Depósito</button>
+                <div id="msgDep" class="msg"></div>
+            </form>
+        </div>
+
+        <!-- Cadastrar Novo Operador -->
+        <div class="card">
+            <h3>👤 Cadastrar Novo Usuário / Operador</h3>
+            <form onsubmit="criarUsuario(event)">
+                <div class="form-group">
+                    <label>Nome Completo:</label>
+                    <input type="text" id="userNome" placeholder="Ex: João Operador" required>
+                </div>
+                <div class="form-group">
+                    <label>Usuário de Login:</label>
+                    <input type="text" id="userLogin" placeholder="Ex: joao.sul" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="userSenha" placeholder="Senha de acesso" required>
+                </div>
+                <div class="form-group">
+                    <label>Perfil de Acesso:</label>
+                    <select id="userPerfil" onchange="alternarDepUsuario()">
+                        <option value="deposito">Operador de Depósito</option>
+                        <option value="adm">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group" id="grupoVinculoDep">
+                    <label>Vincular ao Depósito:</label>
+                    <select id="userDepId">
+                        <!-- Preenchido dinamicamente -->
+                    </select>
+                </div>
+                <button type="submit">Criar Usuário</button>
+                <div id="msgUser" class="msg"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabela de Depósitos e Histórico -->
+    <div class="card">
+        <h3>📊 Estoque Atual por Depósito</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Depósito</th>
+                    <th>Botijas Cheias</th>
+                    <th>Botijas Vazias</th>
+                    <th>Defeitos</th>
+                </tr>
+            <</thead>
+            <tbody id="tabelaDepositos">
+                <!-- Preenchido via JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>📜 Histórico Geral de Operações da Rede</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data / Hora</th>
+                    <th>Local / Origem</th>
+                    <th>Ação</th>
+                    <th>Detalhes</th>
+                </tr>
+            </thead>
+            <tbody id="tabelaHistorico">
+                <!-- Preenchido via JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function carregarDashboard() {
+            try {
+                const res = await fetch('http://127.0.0.1:5000/api/admin/dashboard');
+                const data = await res.json();
+                
+                if(res.ok) {
+                    // Atualiza KPIs
+                    document.getElementById('kpiVendas').innerText = data.kpis.vendas_hoje;
+                    document.getElementById('kpiCheias').innerText = data.kpis.total_cheias;
+                    document.getElementById('kpiVazias').innerText = data.kpis.total_vazias;
+                    document.getElementById('kpiDefeitos').innerText = data.kpis.total_defeitos;
+
+                    // Atualiza select de depósitos para criação de usuários
+                    const selectDep = document.getElementById('userDepId');
+                    selectDep.innerHTML = '';
+                    data.depositos.forEach(d => {
+                        selectDep.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+                    });
+
+                    // Tabela de depósitos
+                    const tbodyDep = document.getElementById('tabelaDepositos');
+                    tbodyDep.innerHTML = '';
+                    data.depositos.forEach(d => {
+                        tbodyDep.innerHTML += `
+                            <tr>
+                                <td><b>${d.nome}</b></td>
+                                <td><span style="color: #2563eb; font-weight:bold;">${d.cheias}</span></td>
+                                <td><span style="color: #ca8a04; font-weight:bold;">${d.vazias}</span></td>
+                                <td><span style="color: #dc2626; font-weight:bold;">${d.defeitos}</span></td>
+                            </tr>
+                        `;
+                    });
+
+                    // Tabela de histórico
+                    const tbodyHist = document.getElementById('tabelaHistorico');
+                    tbodyHist.innerHTML = '';
+                    data.historico.forEach(h => {
+                        tbodyHist.innerHTML += `
+                            <tr>
+                                <td>${h.data_hora}</td>
+                                <td>${h.origem}</td>
+                                <td><b>${h.tipo_acao.toUpperCase()}</b></td>
+                                <td>${h.detalhes}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (err) {
+                console.error("Erro ao carregar dashboard admin:", err);
+            }
+        }
+
+        function alternarDepUsuario() {
+            const perfil = document.getElementById('userPerfil').value;
+            const grupoDep = document.getElementById('grupoVinculoDep');
+            grupoDep.style.display = (perfil === 'adm') ? 'none' : 'block';
+        }
+
+        async function criarDeposito(e) {
+            e.preventDefault();
+            const payload = {
+                nome: document.getElementById('depNome').value,
+                cheias_inicial: document.getElementById('depCheias').value,
+                vazias_inicial: document.getElementById('depVazias').value
+            };
+            const msg = document.getElementById('msgDep');
+
+            const res = await fetch('http://127.0.0.1:5000/api/admin/criar-deposito', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            msg.style.display = 'block';
+            msg.style.backgroundColor = res.ok ? '#dcfce7' : '#fee2e2';
+            msg.style.color = res.ok ? '#166534' : '#991b1b';
+            msg.innerText = json.mensagem || json.erro;
+            if(res.ok) { carregarDashboard(); e.target.reset(); }
+        }
+
+        async function criarUsuario(e) {
+            e.preventDefault();
+            const perfil = document.getElementById('userPerfil').value;
+            const payload = {
+                nome: document.getElementById('userNome').value,
+                usuario: document.getElementById('userLogin').value,
+                senha: document.getElementById('userSenha').value,
+                perfil: perfil,
+                deposito_id: perfil === 'adm' ? null : document.getElementById('userDepId').value
+            };
+            const msg = document.getElementById('msgUser');
+
+            const res = await fetch('http://127.0.0.1:5000/api/admin/criar-usuario', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            msg.style.display = 'block';
+            msg.style.backgroundColor = res.ok ? '#dcfce7' : '#fee2e2';
+            msg.style.color = res.ok ? '#166534' : '#991b1b';
+            msg.innerText = json.mensagem || json.erro;
+            if(res.ok) { e.target.reset(); }
+        }
+
+        window.onload = carregarDashboard;
+    </script>
+</body>
+</html>
