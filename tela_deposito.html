@@ -210,7 +210,7 @@
 
         async function carregarEstoque() {
             try {
-                const response = await fetch(`http://127.0.0.1:5000/api/estoque/${DEPOSITO_ID}`);
+                const response = await fetch(`https://gas-control-1.onrender.com/api/estoque/${depositoId}`);
                 const dados = await response.json();
                 document.getElementById('nomeDeposito').innerText = dados.nome;
                 document.getElementById('qtdCheias').innerText = dados.cheias;
@@ -223,7 +223,7 @@
             e.preventDefault();
             const msgEl = document.getElementById('msgStatus');
             try {
-                const response = await fetch(`http://127.0.0.1:5000${endpoint}`, {
+                const response = await fetch(`https://gas-control-1.onrender.com/api/${endpoint}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
