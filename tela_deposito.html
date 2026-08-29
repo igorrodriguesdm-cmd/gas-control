@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GasControl - Painel Operacional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; }
+        .sidebar-brand { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 40px; color: #fff; }
+        .sidebar-brand i { color: var(--primary); }
+        .sidebar-menu { list-style: none; flex: 1; }
+        .sidebar-menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; background: rgba(255,255,255,0.08); color: white; }
+        .sidebar-footer { border-top: 1px solid #334155; padding-top: 15px; }
+        .btn-logout { width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.2); }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        header { background: var(--card-bg); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        header h2 { font-size: 22px; font-weight: 600; }
+        .user-info { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+        
+        .container { padding: 30px; max-width: 1000px; width: 100%; margin: 0 auto; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .stat-card h3 { font-size: 13px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; }
+        .stat-card p { font-size: 32px; font-weight: 700; }
+        .stat-card.cheias p { color: var(--success); }
+        .stat-card.vazias p { color: var(--warning); }
+        .stat-card.defeito p { color: var(--danger); }
+
+        .action-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .action-card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .action-buttons { display: flex; gap: 15px; }
+        .btn-action { flex: 1; padding: 16px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; transition: opacity 0.2s; }
+        .btn-action.venda { background: var(--success); }
+        .btn-action.carreta { background: var(--primary); }
+        .btn-action:hover { opacity: 0.9; }
+
+        .alert-toast { margin-top: 20px; padding: 12px; border-radius: 8px; font-size: 14px; font-weight: 500; text-align: center; display: none; }
+        .alert-toast.success { background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .alert-toast.error { background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <i class="fa-solid fa-fire-flame-curved"></i> GasControl
+        </div>
+        <ul class="sidebar-menu">
+            <li><i class="fa-solid fa-box-open"></i> Painel Operacional</li>
+        </ul>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="sair()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <header>
+            <h2 id="titulo-deposito">Carregando Depósito...</h2>
+            <div class="user-info" id="nome-operador">Operador</div>
+        </header>
+
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card cheias">
+                    <h3>Botijões Cheios</h3>
+                    <p id="qtd-cheias">0</p>
+                </div>
+                <div class="stat-card vazias">
+                    <h3>Botijões Vazios</h3>
+                    <p id="qtd-vazias">0</p>
+                </div>
+                <div class="stat-card defeito">
+                    <h3>Com Defeito</h3>
+                    <p id="qtd-defeito">0</p>
+                </div>
+            </div>
+
+            <div class="action-card">
+                <h3><i class="fa-solid fa-bolt" style="color: var(--primary);"></i> Ações Rápidas de Estoque</h3>
+                <div class="action-buttons">
+                    <button class="btn-action venda" onclick="executarAcao('vender')">
+                        <i class="fa-solid fa-cart-shopping"></i> Registrar Venda
+                    </button>
+                    <button class="btn-action carreta" onclick="executarAcao('carreta')">
+                        <i class="fa-solid fa-truck-ramp-box"></i> Entrada de Carreta
+                    </button>
+                </div>
+                <div id="toast" class="alert-toast"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://gas-control-1.onrender.com';
+        const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
+
+        if (!usuarioLogado || usuarioLogado.tipo !== 'deposito') {
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById('titulo-deposito').innerText = usuarioLogado.nome;
+            document.getElementById('nome-operador').innerText = usuarioLogado.usuario;
+        }
+
+        async function carregarEstoque() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/estoque/${usuarioLogado.deposito_id}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('qtd-cheias').innerText = data.cheias;
+                    document.getElementById('qtd-vazias').innerText = data.vazias;
+                    document.getElementById('qtd-defeito').innerText = data.defeito;
+                }
+            } catch (err) {
+                console.error("Erro ao carregar estoque:", err);
+            }
+        }
+
+        async function executarAcao(tipo) {
+            const endpoint = tipo === 'vender' ? 'vender' : 'entrada-carreta';
+            const tituloPrompt = tipo === 'vender' ? 'Quantidade de botijões vendidos:' : 'Quantidade de botijões cheios na carreta:';
+            
+            const inputQtd = prompt(tituloPrompt);
+            if (!inputQtd || isNaN(inputQtd)) return;
+            
+            const quantidade = parseInt(inputQtd);
+            if (quantidade <= 0) {
+                mostrarToast('Informe um valor maior que zero.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ deposito_id: usuarioLogado.deposito_id, quantidade })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    mostrarToast(data.mensagem, 'success');
+                    carregarEstoque();
+                } else {
+                    mostrarToast(data.erro || 'Erro na operação.', 'error');
+                }
+            } catch (err) {
+                mostrarToast('Erro de comunicação com o servidor na nuvem.', 'error');
+            }
+        }
+
+        function mostrarToast(mensagem, tipo) {
+            const toast = document.getElementById('toast');
+            toast.innerText = mensagem;
+            toast.className = `alert-toast ${tipo}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 4000);
+        }
+
+        function sair() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        carregarEstoque();
+        setInterval(carregarEstoque, 10000); // Atualiza automaticamente a cada 10s
+    </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GasControl - Login Corporativo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --error: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-card { background: var(--card-bg); width: 100%; max-width: 400px; padding: 40px; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2); border: 1px solid var(--border); }
+        .logo-area { text-align: center; margin-bottom: 30px; }
+        .logo-area i { font-size: 40px; color: var(--primary); margin-bottom: 10px; }
+        .logo-area h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .logo-area p { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; }
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        .input-wrapper input { width: 100%; padding: 12px 14px 12px 42px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; transition: all 0.3s; }
+        .input-wrapper input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+        .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.3s; margin-top: 10px; }
+        .btn-submit:hover { background: var(--primary-dark); }
+        .error-msg { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--error); padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; margin-top: 15px; display: none; }
+        .credentials-hint { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); text-align: center; }
+        .credentials-hint span { color: var(--text); font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="logo-area">
+            <i class="fa-solid fa-fire-flame-curved"></i>
+            <h1>GasControl</h1>
+            <p>Sistema de Gestão de Gás Liquefeito</p>
+        </div>
+        
+        <div class="input-group">
+            <label>Usuário de Acesso</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" id="usuario" placeholder="Ex: admin ou dep1">
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Senha de Segurança</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="senha" placeholder="••••••••">
+            </div>
+        </div>
+
+        <button class="btn-submit" onclick="fazerLogin()">Acessar Sistema</button>
+        <div id="erro" class="error-msg"></div>
+
+        <div class="credentials-hint">
+            Admin: <span>admin / 123</span> | Depósito: <span>dep1 / 123</span>
+        </div>
+    </div>
+
+    <script>
+        const BACKEND_URL = 'https://gas-control-1.onrender.com';
+
+        async function fazerLogin() {
+            const usuario = document.getElementById('usuario').value.trim();
+            const senha = document.getElementById('senha').value.trim();
+            const erroDiv = document.getElementById('erro');
+            erroDiv.style.display = 'none';
+
+            if (!usuario || !senha) {
+                erroDiv.innerText = 'Preencha todos os campos.';
+                erroDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, senha })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('usuario', JSON.stringify(data));
+                    if (data.tipo === 'admin') {
+                        window.location.href = 'tela_admin.html';
+                    } else {
+                        window.location.href = 'tela_deposito.html';
+                    }
+                } else {
+                    erroDiv.innerText = data.erro || 'Falha na autenticação.';
+                    erroDiv.style.display = 'block';
+                }
+            } catch (err) {
+                erroDiv.innerText = 'Erro de comunicação com o servidor na nuvem.';
+                erroDiv.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
