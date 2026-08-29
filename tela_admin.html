@@ -9,6 +9,7 @@
     <style>
         :root {
             --primary: #2563eb;
+            --primary-dark: #1d4ed8;
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --text: #1e293b;
@@ -21,28 +22,22 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
         
-        /* Sidebar */
         .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; }
         .sidebar-brand { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 40px; color: #fff; }
         .sidebar-brand i { color: var(--primary); }
         .sidebar-menu { list-style: none; flex: 1; }
-        .sidebar-menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: all 0.2s; }
-        .sidebar-menu li.active, .sidebar-menu li:hover { background: rgba(255,255,255,0.08); color: white; }
+        .sidebar-menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; background: rgba(255,255,255,0.08); color: white; }
         .sidebar-footer { border-top: 1px solid #334155; padding-top: 15px; }
-        .btn-logout { width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s; }
-        .btn-logout:hover { background: rgba(239, 68, 68, 0.2); }
+        .btn-logout { width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        /* Main Content */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         header { background: var(--card-bg); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         header h2 { font-size: 22px; font-weight: 600; }
-        .user-info { font-size: 14px; color: var(--text-muted); font-weight: 500; }
         
         .container { padding: 30px; max-width: 1200px; width: 100%; margin: 0 auto; }
         
-        /* Cards Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 15px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
         .stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .stat-icon.cheias { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .stat-icon.vazias { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
@@ -50,25 +45,28 @@
         .stat-info h3 { font-size: 13px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; }
         .stat-info p { font-size: 24px; font-weight: 700; margin-top: 5px; }
 
-        /* Tables & Sections */
-        .card-section { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 30px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card-section { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 30px; }
         .card-section h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-primary:hover { background: var(--primary-dark); }
+
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
         th { background: #f1f5f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        tr:hover { background: #f8fafc; }
         .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         .badge.danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .msg-aviso { margin-top: 10px; font-size: 13px; font-weight: 500; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <div class="sidebar-brand">
-            <i class="fa-solid fa-fire-flame-curved"></i> GasControl
-        </div>
+        <div class="sidebar-brand"><i class="fa-solid fa-fire-flame-curved"></i> GasControl</div>
         <ul class="sidebar-menu">
             <li class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</li>
         </ul>
@@ -79,65 +77,71 @@
 
     <div class="main-content">
         <header>
-            <h2>Visão Geral da Rede</h2>
-            <div class="user-info" id="nome-admin">Administrador</div>
+            <h2>Painel Administrativo</h2>
+            <div id="nome-admin" style="color: var(--text-muted);">Admin</div>
         </header>
 
         <div class="container">
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon cheias"><i class="fa-solid fa-gas-pump"></i></div>
-                    <div class="stat-info">
-                        <h3>Total Cheias</h3>
-                        <p id="total-cheias">0</p>
-                    </div>
+                    <div class="stat-info"><h3>Total Cheias</h3><p id="total-cheias">0</p></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon vazias"><i class="fa-solid fa-circle"></i></div>
-                    <div class="stat-info">
-                        <h3>Total Vazias</h3>
-                        <p id="total-vazias">0</p>
-                    </div>
+                    <div class="stat-info"><h3>Total Vazias</h3><p id="total-vazias">0</p></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon defeito"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <div class="stat-info">
-                        <h3>Com Defeito</h3>
-                        <p id="total-defeito">0</p>
-                    </div>
+                    <div class="stat-info"><h3>Com Defeito</h3><p id="total-defeito">0</p></div>
                 </div>
             </div>
 
+            <!-- Cadastro de Novo Depósito -->
             <div class="card-section">
-                <h3><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Estoque por Depósito</h3>
+                <h3><i class="fa-solid fa-building-circle-arrow-right" style="color: var(--primary);"></i> Cadastrar Novo Depósito</h3>
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label>Nome do Depósito</label>
+                        <input type="text" id="novo-nome" placeholder="Ex: Depósito Norte">
+                    </div>
+                    <div class="input-group">
+                        <label>Estoque Inicial Cheias</label>
+                        <input type="number" id="novo-cheias" value="100">
+                    </div>
+                    <div class="input-group">
+                        <label>Usuário de Acesso</label>
+                        <input type="text" id="novo-usuario" placeholder="Ex: dep3">
+                    </div>
+                    <div class="input-group">
+                        <label>Senha de Acesso</label>
+                        <input type="password" id="novo-senha" placeholder="Senha">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="cadastrarDeposito()">Salvar Novo Depósito</button>
+                <div id="msg-cadastro" class="msg-aviso"></div>
+            </div>
+
+            <div class="card-section">
+                <h3><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Rede de Depósitos</h3>
                 <table>
                     <thead>
-                        <tr>
-                            <th>Depósito</th>
-                            <th>Cheias</th>
-                            <th>Vazias</th>
-                            <th>Defeituosas</th>
-                        </tr>
+                        <tr><th>Depósito</th><th>Cheias</th><th>Vazias</th><th>Defeituosas</th></tr>
                     </thead>
                     <tbody id="tabela-depositos">
-                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Carregando dados da nuvem...</td></tr>
+                        <tr><td colspan="4" style="text-align: center;">Carregando...</td></tr>
                     </tbody>
                 </table>
             </div>
 
             <div class="card-section">
-                <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Últimas Movimentações na Rede</h3>
+                <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Últimas Movimentações</h3>
                 <table>
                     <thead>
-                        <tr>
-                            <th>Operação</th>
-                            <th>Depósito</th>
-                            <th>Quantidade</th>
-                            <th>Status/Detalhes</th>
-                        </tr>
+                        <tr><th>Operação</th><th>Depósito</th><th>Qtd</th><th>Detalhes / Pagamento</th></tr>
                     </thead>
                     <tbody id="tabela-historico">
-                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhuma movimentação registrada.</td></tr>
+                        <tr><td colspan="4" style="text-align: center;">Nenhuma movimentação.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -148,11 +152,7 @@
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
 
-        if (!usuarioLogado || usuarioLogado.tipo !== 'admin') {
-            window.location.href = 'index.html';
-        } else {
-            document.getElementById('nome-admin').innerText = usuarioLogado.nome;
-        }
+        if (!usuarioLogado || usuarioLogado.tipo !== 'admin') window.location.href = 'index.html';
 
         async function carregarDashboard() {
             try {
@@ -179,33 +179,54 @@
 
                     const tbodyHist = document.getElementById('tabela-historico');
                     tbodyHist.innerHTML = '';
-                    if (data.historico.length === 0) {
-                        tbodyHist.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhuma movimentação recente.</td></tr>';
-                    } else {
-                        data.historico.reverse().forEach(h => {
-                            tbodyHist.innerHTML += `
-                                <tr>
-                                    <td><strong>${h.tipo}</strong></td>
-                                    <td>${h.deposito}</td>
-                                    <td>${h.quantidade} botijões</td>
-                                    <td>${h.status}</td>
-                                </tr>
-                            `;
-                        });
-                    }
+                    data.historico.reverse().forEach(h => {
+                        tbodyHist.innerHTML += `
+                            <tr>
+                                <td><strong>${h.tipo}</strong></td>
+                                <td>${h.deposito}</td>
+                                <td>${h.quantidade} un</td>
+                                <td>${h.status}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (err) { console.error(err); }
+        }
+
+        async function cadastrarDeposito() {
+            const nome = document.getElementById('novo-nome').value.trim();
+            const cheias = document.getElementById('novo-cheias').value;
+            const usuario = document.getElementById('novo-usuario').value.trim();
+            const senha = document.getElementById('novo-senha').value.trim();
+            const msg = document.getElementById('msg-cadastro');
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/criar-deposito`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, cheias, usuario, senha })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    msg.style.color = 'var(--success)';
+                    msg.innerText = data.mensagem;
+                    carregarDashboard();
+                    document.getElementById('novo-nome').value = '';
+                    document.getElementById('novo-usuario').value = '';
+                    document.getElementById('novo-senha').value = '';
+                } else {
+                    msg.style.color = 'var(--danger)';
+                    msg.innerText = data.erro;
                 }
             } catch (err) {
-                console.error("Erro ao carregar dashboard:", err);
+                msg.style.color = 'var(--danger)';
+                msg.innerText = 'Erro ao cadastrar depósito.';
             }
         }
 
-        function sair() {
-            localStorage.clear();
-            window.location.href = 'index.html';
-        }
-
+        function sair() { localStorage.clear(); window.location.href = 'index.html'; }
         carregarDashboard();
-        setInterval(carregarDashboard, 10000); // Atualiza automaticamente a cada 10s
+        setInterval(carregarDashboard, 10000);
     </script>
 </body>
 </html>
