@@ -155,41 +155,67 @@
     <script>
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuarioLogado || usuarioLogado.tipo !== 'deposito') window.location.href = 'index.html';
-
-        document.getElementById('titulo-dep').innerText = usuarioLogado.nome;
-        document.getElementById('operador-info').innerText = `Operador: ${usuarioLogado.nome_operador}`;
+        if (!usuarioLogado || usuarioLogado.tipo !== 'deposito') {
+            window.location.href = 'index.html';
+        } else {
+            const elDep = document.getElementById('titulo-dep');
+            if(elDep) elDep.innerText = usuarioLogado.nome;
+            const elOp = document.getElementById('operador-info');
+            if(elOp) elOp.innerText = `Operador: ${usuarioLogado.nome_operador}`;
+        }
 
         function mudarAba(aba, el) {
             document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.menu li').forEach(l => l.classList.remove('active'));
-            document.getElementById(`aba-${aba}`).classList.add('active');
-            el.classList.add('active');
+            
+            const abaAlvo = document.getElementById(`aba-${aba}`);
+            if (abaAlvo) abaAlvo.classList.add('active');
+            if (el) el.classList.add('active');
+
             if (aba === 'dashboard') carregarDadosDeposito();
             if (aba === 'estoque') carregarSelectsTransferencia();
             if (aba === 'movimentacao') carregarMovimentacoes();
         }
 
         function toggleTrocaForm() {
-            const visivel = document.getElementById('check-troca').checked;
-            document.getElementById('bloco-troca').style.display = visivel ? 'block' : 'none';
+            const check = document.getElementById('check-troca');
+            const bloco = document.getElementById('bloco-troca');
+            if (check && bloco) {
+                bloco.style.display = check.checked ? 'block' : 'none';
+            }
         }
 
         async function carregarDadosDeposito() {
-            const res = await fetch(`${BACKEND_URL}/api/deposito/${usuarioLogado.deposito_id}/dados`);
-            const data = await res.json();
-            if (res.ok) {
-                const tbVendas = document.getElementById('tabela-vendas-hoje');
-                tbVendas.innerHTML = '';
-                data.vendas_hoje.forEach(v => {
-                    tbVendas.innerHTML += `<tr><td>${v.data}</td><td>${v.quantidade} un</td><td>${v.pagamento}</td><td>${v.estoque_antes} ➔ ${v.estoque_depois}</td><td>R$ ${v.valor_total.toFixed(2)}</td></tr>`;
-                });
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/deposito/${usuarioLogado.deposito_id}/dados`);
+                const data = await res.json();
+                if (res.ok) {
+                    const tbVendas = document.getElementById('tabela-vendas-hoje');
+                    if (tbVendas) {
+                        tbVendas.innerHTML = '';
+                        if (data.vendas_hoje && data.vendas_hoje.length > 0) {
+                            data.vendas_hoje.forEach(v => {
+                                tbVendas.innerHTML += `<tr><td>${v.data}</td><td>${v.quantidade} un</td><td>${v.pagamento}</td><td>${v.estoque_antes} ➔ ${v.estoque_depois}</td><td>R$ ${v.valor_total.toFixed(2)}</td></tr>`;
+                            });
+                        } else {
+                            tbVendas.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhuma venda hoje.</td></tr>`;
+                        }
+                    }
 
-                const tbTrocas = document.getElementById('tabela-trocas-hoje');
-                tbTrocas.innerHTML = '';
-                data.trocas_hoje.forEach(t => {
-                    tbTrocas.innerHTML += `<tr><td>${t.cliente}</td><td>${t.cpf}</td><td>${t.tamanho_botijao}</td><td>${t.motivo}</td><td>${t.conferido_repesado ? 'Sim' : 'Não'}</td></tr>`;
-                });
+                    const tbTrocas = document.getElementById('tabela-trocas-hoje');
+                    if (tbTrocas) {
+                        tbTrocas.innerHTML = '';
+                        if (data.trocas_hoje && data.trocas_hoje.length > 0) {
+                            data.trocas_hoje.forEach(t => {
+                                tbTrocas.innerHTML += `<tr><td>${t.cliente}</td><td>${t.cpf}</td><td>${t.tamanho_botijao}</td><td>${t.motivo}</td><td>${t.conferido_repesado ? 'Sim' : 'Não'}</td></tr>`;
+                            });
+                        } else {
+                            tbTrocas.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhuma troca registrada.</td></tr>`;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao carregar dados do depósito", e);
             }
         }
 
@@ -216,22 +242,30 @@
         }
 
         async function carregarSelectsTransferencia() {
-            const res = await fetch(`${BACKEND_URL}/api/admin/dashboard`);
-            const data = await res.json();
-            if (res.ok) {
-                const selDestino = document.getElementById('trans-destino');
-                selDestino.innerHTML = '<option value="">Selecione...</option>';
-                data.depositos.forEach(d => {
-                    if (d.id !== usuarioLogado.deposito_id) {
-                        selDestino.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/admin/dashboard`);
+                const data = await res.json();
+                if (res.ok) {
+                    const selDestino = document.getElementById('trans-destino');
+                    if (selDestino) {
+                        selDestino.innerHTML = '<option value="">Selecione...</option>';
+                        data.depositos.forEach(d => {
+                            if (d.id !== usuarioLogado.deposito_id) {
+                                selDestino.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+                            }
+                        });
                     }
-                });
 
-                const selCam = document.getElementById('trans-caminhao');
-                selCam.innerHTML = '';
-                data.caminhoes.forEach(c => {
-                    selCam.innerHTML += `<option value="${c.placa}">${c.placa} (Cap: ${c.capacidade})</option>`;
-                });
+                    const selCam = document.getElementById('trans-caminhao');
+                    if (selCam) {
+                        selCam.innerHTML = '';
+                        data.caminhoes.forEach(c => {
+                            selCam.innerHTML += `<option value="${c.placa}">${c.placa} (Cap: ${c.capacidade})</option>`;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao carregar selects de transferência", e);
             }
         }
 
@@ -251,14 +285,24 @@
         }
 
         async function carregarMovimentacoes() {
-            const res = await fetch(`${BACKEND_URL}/api/deposito/movimentacoes`);
-            const data = await res.json();
-            if (res.ok) {
-                const tb = document.getElementById('tabela-movimentacoes');
-                tb.innerHTML = '';
-                data.forEach(m => {
-                    tb.innerHTML += `<tr><td>${m.data}</td><td>${m.origem}</td><td>${m.destino}</td><td>${m.quantidade} (${m.tipo_botijao})</td><td>${m.caminhao}</td><td>${m.motorista} (${m.operador})</td></tr>`;
-                });
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/deposito/movimentacoes`);
+                const data = await res.json();
+                if (res.ok) {
+                    const tb = document.getElementById('tabela-movimentacoes');
+                    if (tb) {
+                        tb.innerHTML = '';
+                        if (data && data.length > 0) {
+                            data.forEach(m => {
+                                tb.innerHTML += `<tr><td>${m.data}</td><td>${m.origem}</td><td>${m.destino}</td><td>${m.quantidade} (${m.tipo_botijao})</td><td>${m.caminhao}</td><td>${m.motorista} (${m.operador})</td></tr>`;
+                            });
+                        } else {
+                            tb.innerHTML = `<tr><td colspan="7" style="text-align:center;">Nenhuma movimentação registrada.</td></tr>`;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Erro ao carregar movimentações", e);
             }
         }
 
