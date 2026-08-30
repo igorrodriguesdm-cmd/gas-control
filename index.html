@@ -64,14 +64,23 @@
 
             msgErro.style.display = 'none';
             btnEntrar.disabled = true;
-            btnEntrar.innerText = 'Conectando ao servidor...';
+            btnEntrar.innerText = 'Conectando... (Aguarde)';
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, senha })
+                    body: JSON.stringify({ 
+                        usuario: usuario, 
+                        senha: senha, 
+                        nome_operador: nomeOperadorInput // Enviando o nome para passar na auditoria do backend
+                    })
                 });
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new Error("O servidor demorou a responder ou retornou um erro inesperado.");
+                }
 
                 const data = await response.json();
 
@@ -86,9 +95,9 @@
                     localStorage.setItem('usuario', JSON.stringify(dadosSessao));
 
                     if (data.tipo === 'admin') {
-                        window.location.href = 'tela_admin.html';
+                        window.location.href = '/tela_admin.html';
                     } else {
-                        window.location.href = 'tela_deposito.html';
+                        window.location.href = '/tela_deposito.html';
                     }
                 } else {
                     msgErro.innerText = data.erro || 'Usuário ou senha incorretos.';
@@ -97,7 +106,8 @@
                     btnEntrar.innerText = 'Entrar no Sistema';
                 }
             } catch (err) {
-                msgErro.innerText = 'O servidor no Render está acordando. Aguarde 30 segundos e tente de novo.';
+                console.error("Erro no login:", err);
+                msgErro.innerText = err.message || 'Erro de conexão com o servidor.';
                 msgErro.style.display = 'block';
                 btnEntrar.disabled = false;
                 btnEntrar.innerText = 'Entrar no Sistema';
