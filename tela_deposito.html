@@ -34,7 +34,7 @@
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group select, .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
+        .input-group select, .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; background: #fff; }
         .input-group select:focus, .input-group input:focus { border-color: var(--primary); }
         
         .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: white; background: var(--success); font-size: 15px; transition: opacity 0.2s; }
@@ -143,7 +143,6 @@
 
         <!-- 3. ABA ESTOQUE E TRANSFERÊNCIA -->
         <div id="tab-estoque" class="tab-pane">
-            <!-- Bloco de Acompanhamento por Período -->
             <div class="card">
                 <h3>Acompanhar Estoque por Período</h3>
                 <div class="form-row">
@@ -154,11 +153,10 @@
                 
                 <table>
                     <thead><tr><th>Data/Hora</th><th>Operação</th><th>Qtd Movimentada</th><th>Resp. pelo Depósito</th></tr></thead>
-                    <tbody id="tabela-historico-estoque"><tr><td colspan="4" style="text-align:center;">Selecione o período para carregar.</td></tr></tbody>
+                    <tbody id="tabela-historico-estoque"><tr><td colspan="4" style="text-align:center;">Selecione o período e clique em filtrar.</td></tr></tbody>
                 </table>
             </div>
 
-            <!-- Bloco de Transferência de Estoque -->
             <div class="card">
                 <h3>Transferir Estoque para Outra Revenda</h3>
                 <div class="form-row">
@@ -212,7 +210,7 @@
     <script>
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         
-        // Verificação e Coleta Obrigatória do Responsável pelo Depósito no Login
+        // 1. Verificação de login e Pergunta Obrigatória do Responsável
         let usuarioLogado = null;
         try {
             usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
@@ -223,7 +221,6 @@
         if (!usuarioLogado || usuarioLogado.tipo !== 'deposito') {
             window.location.href = 'index.html';
         } else {
-            // Garante pergunta obrigatória se não houver responsável definido na sessão
             if (!usuarioLogado.responsavel) {
                 let resp = prompt("Identificação obrigatória: Digite o nome do Responsável pelo Depósito neste turno:");
                 while (!resp || resp.trim() === "") {
@@ -239,66 +236,78 @@
             if (elOp) elOp.innerText = `Responsável: ${usuarioLogado.responsavel}`;
         }
 
-        // Navegação Robusta por Abas da Sidebar
-        document.querySelectorAll('.menu-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetTab = this.getAttribute('data-tab');
-                
-                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
-                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        // 2. Sistema de Abas (Sidebar) à prova de falhas
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuItems = document.querySelectorAll('.menu-item');
+            const tabPanes = document.querySelectorAll('.tab-pane');
 
-                this.classList.add('active');
-                const pane = document.getElementById(`tab-${targetTab}`);
-                if (pane) pane.classList.add('active');
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const target = item.getAttribute('data-tab');
 
-                // Executa ações específicas ao abrir a aba
-                if (targetTab === 'dashboard') {
-                    carregarDadosDashboard();
-                } else if (targetTab === 'estoque') {
-                    carregarSelectsTransferencia();
-                } else if (targetTab === 'movimentacao') {
-                    carregarMovimentacoesGerais();
-                }
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+
+                    item.classList.add('active');
+                    const pane = document.getElementById(`tab-${target}`);
+                    if (pane) {
+                        pane.classList.add('active');
+                    }
+
+                    // Ações automáticas ao abrir abas específicas
+                    if (target === 'dashboard') {
+                        carregarDadosDashboard();
+                    } else if (target === 'estoque') {
+                        carregarSelectsTransferencia();
+                    } else if (target === 'movimentacao') {
+                        carregarMovimentacoesGerais();
+                    }
+                });
             });
-        });
 
-        // Toggle Sidebar (Abrir / Fechar)
-        const btnToggle = document.getElementById('btn-toggle-sidebar');
-        if (btnToggle) {
-            btnToggle.addEventListener('click', () => {
-                document.getElementById('sidebar').classList.toggle('collapsed');
-            });
-        }
+            // Toggle Sidebar Retrátil
+            const btnToggle = document.getElementById('btn-toggle-sidebar');
+            const sidebar = document.getElementById('sidebar');
+            if (btnToggle && sidebar) {
+                btnToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
 
-        // Botão Sair / Logout
-        const btnSair = document.getElementById('btn-sair');
-        if (btnSair) {
-            btnSair.addEventListener('click', () => {
-                localStorage.clear();
-                window.location.href = 'index.html';
-            });
-        }
+            // Logout
+            const btnSair = document.getElementById('btn-sair');
+            if (btnSair) {
+                btnSair.addEventListener('click', () => {
+                    localStorage.clear();
+                    window.location.href = 'index.html';
+                });
+            }
 
-        // Toggle bloco de troca
-        const checkTroca = document.getElementById('check-troca');
-        const blocoTroca = document.getElementById('bloco-troca');
-        if (checkTroca && blocoTroca) {
-            checkTroca.addEventListener('change', function() {
-                blocoTroca.style.display = this.checked ? 'block' : 'none';
-            });
-        }
+            // Checkbox Troca
+            const checkTroca = document.getElementById('check-troca');
+            const blocoTroca = document.getElementById('bloco-troca');
+            if (checkTroca && blocoTroca) {
+                checkTroca.addEventListener('change', () => {
+                    blocoTroca.style.display = checkTroca.checked ? 'block' : 'none';
+                });
+            }
 
-        // Ações Principais
-        document.getElementById('btn-efetivar-venda').addEventListener('click', realizarVenda);
-        document.getElementById('btn-transferir').addEventListener('click', realizarTransferencia);
-        document.getElementById('btn-filtrar-estoque').addEventListener('click', filtrarEstoquePeriodo);
-        document.getElementById('filtro-mov-deposito').addEventListener('change', carregarMovimentacoesGerais);
+            // Modals e Ações
+            const modalTroca = document.getElementById('modal-troca');
+            const btnFecharModal = document.getElementById('btn-fechar-modal');
+            if (btnFecharModal && modalTroca) {
+                btnFecharModal.addEventListener('click', () => {
+                    modalTroca.style.display = 'none';
+                });
+            }
 
-        // Modal de Trocas
-        const modalTroca = document.getElementById('modal-troca');
-        document.getElementById('btn-fechar-modal').addEventListener('click', () => {
-            modalTroca.style.display = 'none';
+            document.getElementById('btn-efetivar-venda').addEventListener('click', realizarVenda);
+            document.getElementById('btn-transferir').addEventListener('click', realizarTransferencia);
+            document.getElementById('btn-filtrar-estoque').addEventListener('click', filtrarEstoquePeriodo);
+            document.getElementById('filtro-mov-deposito').addEventListener('change', carregarMovimentacoesGerais);
+
+            // Carga inicial
+            carregarDadosDashboard();
         });
 
         function abrirModalTroca(t) {
@@ -307,10 +316,10 @@
             document.getElementById('m-tamanho').innerText = t.tamanho_botijao || '-';
             document.getElementById('m-motivo').innerText = t.motivo || '-';
             document.getElementById('m-conferido').innerText = t.conferido_repesado ? 'Sim' : 'Não';
-            modalTroca.style.display = 'flex';
+            document.getElementById('modal-troca').style.display = 'flex';
         }
 
-        // Funções de Comunicação com Backend
+        // Funções de API
         async function carregarDadosDashboard() {
             if (!usuarioLogado) return;
             try {
@@ -330,9 +339,9 @@
                     const tbTrocas = document.getElementById('tabela-trocas-hoje');
                     tbTrocas.innerHTML = '';
                     if (data.trocas_hoje && data.trocas_hoje.length > 0) {
-                        data.trocas_hoje.forEach((t, index) => {
+                        data.trocas_hoje.forEach((t) => {
                             const tr = document.createElement('tr');
-                            tr.innerHTML = `<td>${t.data || 'Hoje'}</td><td>${t.cliente}</td><td>${t.tamanho_botijao}</td><td>${t.motivo}</td><td><button class="btn-action" type="button" style="padding:4px 8px; font-size:12px; background:var(--primary);">Ver Detalhes</button></td>`;
+                            tr.innerHTML = `<td>${t.data || 'Hoje'}</td><td>${t.cliente || 'Cliente'}</td><td>${t.tamanho_botijao || 'P13'}</td><td>${t.motivo || '-'}</td><td><button class="btn-action" type="button" style="padding:4px 8px; font-size:12px; background:var(--primary); width:auto;">Ver Detalhes</button></td>`;
                             tr.querySelector('button').addEventListener('click', () => abrirModalTroca(t));
                             tbTrocas.appendChild(tr);
                         });
@@ -406,7 +415,7 @@
                     });
                 }
             } catch (e) {
-                console.error("Erro ao carregar dados auxiliares", e);
+                console.error("Erro ao carregar selects", e);
             }
         }
 
@@ -487,9 +496,6 @@
                 console.error("Erro ao carregar movimentações", e);
             }
         }
-
-        // Inicialização padrão ao abrir o painel
-        carregarDadosDashboard();
     </script>
 </body>
 </html>
