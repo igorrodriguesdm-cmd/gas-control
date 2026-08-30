@@ -3,258 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GasControl - Painel Administrativo</title>
+    <title>GasControl - Painel do Administrador</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --success: #10b981; --danger: #ef4444; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar Retrátil */
-        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s ease; }
-        .sidebar.collapsed { width: 80px; }
-        .sidebar.collapsed .brand-text, .sidebar.collapsed .menu-text, .sidebar.collapsed .user-info-text { display: none; }
-        .sidebar-brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
-        .sidebar-brand div { display: flex; align-items: center; gap: 10px; }
-        .btn-toggle { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
+        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; }
+        .sidebar-brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; color: white; }
         
-        .menu { list-style: none; flex: 1; }
-        .menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
-        .menu li:hover, .menu li.active { background: rgba(255,255,255,0.1); color: white; }
-        
-        .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .menu { list-style: none; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .menu-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: background 0.2s, color 0.2s; text-decoration: none; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.15); color: white; }
+
+        .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; }
         header { background: var(--card); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         
-        .content { padding: 30px; max-width: 1200px; width: 100%; margin: 0 auto; display: none; }
-        .content.active { display: block; }
-
-        .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 25px; }
-        .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-        
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
-        
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-primary:hover { background: var(--primary-dark); }
+        .content { padding: 30px; max-width: 1200px; width: 100%; margin: 0 auto; }
+        .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--text); }
 
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
         th { background: #f1f5f9; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-        .badge.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        
-        .checkbox-list { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="sidebar" id="sidebar">
+
+    <nav class="sidebar">
         <div class="sidebar-brand">
-            <div><i class="fa-solid fa-fire-flame-curved" style="color: var(--primary);"></i> <span class="brand-text">GasControl</span></div>
-            <button class="btn-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+            <div><i class="fa-solid fa-fire-flame-curved" style="color: var(--primary);"></i> GasControl Admin</div>
         </div>
         <ul class="menu">
-            <li class="active" onclick="mudarAba('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> <span class="menu-text">Dashboard</span></li>
-            <li onclick="mudarAba('cadastro', this)"><i class="fa-solid fa-folder-plus"></i> <span class="menu-text">Cadastro</span></li>
-            <li onclick="mudarAba('relatorios', this)"><i class="fa-solid fa-file-lines"></i> <span class="menu-text">Relatórios</span></li>
+            <li><a class="menu-item active"><i class="fa-solid fa-chart-line"></i> Visão Geral</a></li>
         </ul>
-        <div style="border-top: 1px solid #334155; padding-top: 15px;">
-            <button onclick="sair()" style="width:100%; padding:10px; background:rgba(239,68,68,0.1); color:var(--danger); border:none; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-right-from-bracket"></i> <span class="menu-text">Sair</span></button>
+        <div style="border-top:1px solid #334155; padding-top:15px;">
+            <button id="btn-sair-admin" type="button" style="width:100%; padding:10px; background:rgba(239,68,68,0.1); color:var(--danger); border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
         </div>
-    </div>
+    </nav>
 
-    <div class="main">
+    <main class="main">
         <header>
-            <h2 id="titulo-pagina">Dashboard Geral</h2>
-            <div id="admin-nome" style="font-weight: 600; color: var(--muted);">Admin</div>
+            <h2>Painel de Controle Geral</h2>
+            <div style="background: #f1f5f9; padding: 6px 14px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border);">
+                Administrador
+            </div>
         </header>
 
-        <!-- ABA DASHBOARD -->
-        <div id="aba-dashboard" class="content active">
+        <div class="content">
             <div class="card">
-                <h3><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Visão Geral dos Depósitos</h3>
+                <h3>Status de Todos os Depósitos</h3>
                 <table>
                     <thead>
-                        <tr><th>Depósito</th><th>Vendas Hoje</th><th>Estoque Cheias</th><th>Estoque Vazias</th><th>Defeito</th><th>Caminhão / Placa</th><th>Horário</th></tr>
+                        <tr><th>Depósito</th><th>Estoque Cheias</th><th>Estoque Vazias</th></tr>
                     </thead>
-                    <tbody id="tabela-dashboard-depositos">
-                        <tr><td colspan="7" style="text-align: center;">Carregando...</td></tr>
+                    <tbody id="tabela-depositos-admin">
+                        <tr><td colspan="3" style="text-align:center;">Carregando dados globais...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
-        <!-- ABA CADASTRO -->
-        <div id="aba-cadastro" class="content">
-            <div class="card">
-                <h3><i class="fa-solid fa-building-circle-arrow-right" style="color: var(--primary);"></i> Cadastrar Novo Depósito</h3>
-                <div class="form-grid">
-                    <div class="input-group"><label>Nome do Depósito</label><input type="text" id="cad-nome" placeholder="Ex: Depósito Norte"></div>
-                    <div class="input-group"><label>Razão Social</label><input type="text" id="cad-razao" placeholder="Razão Social Ltda"></div>
-                    <div class="input-group"><label>CNPJ</label><input type="text" id="cad-cnpj" placeholder="00.000.000/0001-00"></div>
-                    <div class="input-group"><label>Endereço Completo</label><input type="text" id="cad-endereco" placeholder="Rua, Número, Bairro"></div>
-                    <div class="input-group"><label>Estoque Inicial Cheias</label><input type="number" id="cad-cheias" value="100"></div>
-                    <div class="input-group"><label>Início Funcionamento</label><input type="time" id="cad-h-inicio" value="08:00"></div>
-                    <div class="input-group"><label>Fim Funcionamento</label><input type="time" id="cad-h-fim" value="18:00"></div>
-                    <div class="input-group"><label>Tipo de Fechamento</label>
-                        <select id="cad-fechamento">
-                            <option value="automatico">Automático (Horário Comercial)</option>
-                            <option value="manual_24h">Manual 24h</option>
-                        </select>
-                    </div>
-                    <div class="input-group"><label>Usuário de Acesso</label><input type="text" id="cad-usuario" placeholder="dep_norte"></div>
-                    <div class="input-group"><label>Senha de Acesso</label><input type="password" id="cad-senha" placeholder="Senha"></div>
-                </div>
-                <label style="display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:8px; text-transform:uppercase;">Formas de Pagamento Aceitas</label>
-                <div class="checkbox-list">
-                    <label><input type="checkbox" name="pag" value="Dinheiro" checked> Dinheiro</label>
-                    <label><input type="checkbox" name="pag" value="PIX" checked> PIX</label>
-                    <label><input type="checkbox" name="pag" value="Cartão de Crédito" checked> Cartão de Crédito</label>
-                    <label><input type="checkbox" name="pag" value="Cartão de Débito" checked> Cartão de Débito</label>
-                </div>
-                <button class="btn-primary" onclick="salvarDeposito()">Cadastrar Depósito</button>
-            </div>
-
-            <div class="card">
-                <h3><i class="fa-solid fa-truck" style="color: var(--primary);"></i> Cadastrar Caminhão / Frota</h3>
-                <div class="form-grid">
-                    <div class="input-group"><label>Placa do Caminhão</label><input type="text" id="cam-placa" placeholder="ABC-1234"></div>
-                    <div class="input-group"><label>Capacidade de Botijões</label><input type="number" id="cam-capacidade" value="80"></div>
-                </div>
-                <button class="btn-primary" onclick="salvarCaminhao()">Cadastrar Caminhão</button>
-            </div>
-        </div>
-
-        <!-- ABA RELATÓRIOS -->
-        <div id="aba-relatorios" class="content">
-            <div class="card">
-                <h3><i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> Gerar Relatórios Gerenciais e Financeiros</h3>
-                <div class="form-grid">
-                    <div class="input-group"><label>Data Início</label><input type="date" id="rel-inicio"></div>
-                    <div class="input-group"><label>Data Fim</label><input type="date" id="rel-fim"></div>
-                </div>
-                <button class="btn-primary" onclick="gerarRelatorio()">Gerar Relatório Consolidado</button>
-            </div>
-
-            <div class="card" id="resultado-relatorio" style="display: none;">
-                <h3>Resultado do Relatório</h3>
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
-                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px;">
-                        <h4 style="font-size: 13px; color: var(--muted);">Total de Gás Vendido</h4>
-                        <p id="rel-total-gas" style="font-size: 24px; font-weight: 700;">0 un</p>
-                    </div>
-                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px;">
-                        <h4 style="font-size: 13px; color: var(--muted);">Faturamento Total em Valores</h4>
-                        <p id="rel-total-valor" style="font-size: 24px; font-weight: 700; color: var(--success);">R$ 0,00</p>
-                    </div>
-                </div>
-                <h4>Faturamento por Forma de Pagamento</h4>
-                <ul id="rel-por-pagamento" style="list-style: none; margin-top: 10px; margin-bottom: 20px;"></ul>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <script>
-        const BACKEND_URL = 'https://gas-control-1.onrender.com';
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
-        if (!usuarioLogado || usuarioLogado.tipo !== 'admin') window.location.href = 'index.html';
-        document.getElementById('admin-nome').innerText = usuarioLogado.nome_operador;
-
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
+        const BACKEND_URL = 'https://gas-control-n9ns.onrender.com';
+        
+        let usuarioAdmin = null;
+        try {
+            usuarioAdmin = JSON.parse(localStorage.getItem('usuario'));
+        } catch(e) {
+            usuarioAdmin = null;
         }
 
-        function mudarAba(aba, el) {
-            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.menu li').forEach(l => l.classList.remove('active'));
-            document.getElementById(`aba-${aba}`).classList.add('active');
-            el.classList.add('active');
-            const titulos = { 'dashboard': 'Dashboard Geral', 'cadastro': 'Painel de Cadastros', 'relatorios': 'Relatórios e Auditoria' };
-            document.getElementById('titulo-pagina').innerText = titulos[aba];
-            if (aba === 'dashboard') carregarDashboard();
+        if (!usuarioAdmin || usuarioAdmin.tipo !== 'admin') {
+            window.location.href = 'index.html';
         }
 
-        async function carregarDashboard() {
+        document.getElementById('btn-sair-admin').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
+
+        async function carregarAdmin() {
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/dashboard`);
                 const data = await res.json();
                 if (res.ok) {
-                    const tbody = document.getElementById('tabela-dashboard-depositos');
-                    tbody.innerHTML = '';
-                    data.depositos.forEach(d => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><strong>${d.nome}</strong></td>
-                                <td><span class="badge success">${d.vendas_hoje} un</span></td>
-                                <td>${d.cheias}</td>
-                                <td>${d.vazias}</td>
-                                <td>${d.defeito}</td>
-                                <td><i class="fa-solid fa-truck"></i> ${d.caminhao_parado}</td>
-                                <td>${d.horario}</td>
-                            </tr>
-                        `;
-                    });
+                    const tb = document.getElementById('tabela-depositos-admin');
+                    tb.innerHTML = '';
+                    if (data.depositos && data.depositos.length > 0) {
+                        data.depositos.forEach(d => {
+                            tb.innerHTML += `<tr><td>${d.nome}</td><td>${d.estoque_cheias} un</td><td>${d.estoque_vazias} un</td></tr>`;
+                        });
+                    } else {
+                        tb.innerHTML = `<tr><td colspan="3" style="text-align:center;">Nenhum depósito cadastrado.</td></tr>`;
+                    }
                 }
-            } catch (err) { console.error(err); }
-        }
-
-        async function salvarDeposito() {
-            const pagamentos = Array.from(document.querySelectorAll('input[name="pag"]:checked')).map(cb => cb.value);
-            const dados = {
-                tipo: 'deposito',
-                nome: document.getElementById('cad-nome').value,
-                razao_social: document.getElementById('cad-razao').value,
-                cnpj: document.getElementById('cad-cnpj').value,
-                endereco: document.getElementById('cad-endereco').value,
-                cheias: document.getElementById('cad-cheias').value,
-                horario_inicio: document.getElementById('cad-h-inicio').value,
-                horario_fim: document.getElementById('cad-h-fim').value,
-                tipo_fechamento: document.getElementById('cad-fechamento').value,
-                usuario: document.getElementById('cad-usuario').value,
-                senha: document.getElementById('cad-senha').value,
-                pagamentos: pagamentos,
-                caminhoes_fixos: ["ABC-1234"]
-            };
-
-            const res = await fetch(`${BACKEND_URL}/api/admin/cadastrar-tudo`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados)
-            });
-            const r = await res.json();
-            alert(r.mensagem || r.erro);
-            if (res.ok) carregarDashboard();
-        }
-
-        async function salvarCaminhao() {
-            const placa = document.getElementById('cam-placa').value;
-            const capacidade = document.getElementById('cam-capacidade').value;
-            const res = await fetch(`${BACKEND_URL}/api/admin/cadastrar-tudo`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tipo: 'caminhao', placa, capacidade })
-            });
-            const r = await res.json();
-            alert(r.mensagem || r.erro);
-        }
-
-        async function gerarRelatorio() {
-            const res = await fetch(`${BACKEND_URL}/api/admin/relatorios`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({})
-            });
-            const data = await res.json();
-            if (res.ok) {
-                document.getElementById('resultado-relatorio').style.display = 'block';
-                document.getElementById('rel-total-gas').innerText = `${data.total_gas_vendido} botijões`;
-                document.getElementById('rel-total-valor').innerText = `R$ ${data.faturamento_total.toFixed(2)}`;
-                
-                const ul = document.getElementById('rel-por-pagamento');
-                ul.innerHTML = '';
-                for (const [pag, val] of Object.entries(data.por_forma_pagamento)) {
-                    ul.innerHTML += `<li style="padding:8px 0; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between;"><span>${pag}</span><strong>R$ ${val.toFixed(2)}</strong></li>`;
-                }
+            } catch(e) {
+                console.error("Erro ao carregar painel admin", e);
             }
         }
 
-        carregarDashboard();
+        carregarAdmin();
     </script>
 </body>
 </html>
