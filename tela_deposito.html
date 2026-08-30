@@ -11,7 +11,6 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-        /* BARRA LATERAL RETRÁTIL FUNCIONAL */
         .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s ease; z-index: 10; flex-shrink: 0; }
         .sidebar.collapsed { width: 80px; }
         .sidebar.collapsed .brand-text, .sidebar.collapsed .menu-text { display: none; }
@@ -19,10 +18,9 @@
         .btn-toggle { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
         
         .menu { list-style: none; flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .menu-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: background 0.2s, color 0.2s; white-space: nowrap; }
+        .menu-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: background 0.2s, color 0.2s; white-space: nowrap; text-decoration: none; }
         .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.15); color: white; }
 
-        /* CONTEÚDO PRINCIPAL & ABAS */
         .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; }
         header { background: var(--card); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         
@@ -44,7 +42,6 @@
         th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
         th { background: #f1f5f9; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 12px; }
 
-        /* MODAL DE DETALHES DA TROCA */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
         .modal-card { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .modal-card h3 { margin-bottom: 15px; font-size: 18px; }
@@ -54,7 +51,6 @@
 </head>
 <body>
 
-    <!-- BARRA LATERAL COM ABAS FUNCIONAIS -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div><i class="fa-solid fa-fire-flame-curved" style="color: var(--primary);"></i> <span class="brand-text">GasControl</span></div>
@@ -71,7 +67,6 @@
         </div>
     </nav>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <main class="main">
         <header>
             <div style="display: flex; align-items: center; gap: 20px;">
@@ -134,7 +129,6 @@
                     <input type="checkbox" id="check-troca" checked style="width:18px; height:18px;"> Houve Troca de Vasilhame Vazio?
                 </label>
 
-                <!-- Questionário de Troca -->
                 <div id="bloco-troca" style="background:#f1f5f9; padding:20px; border-radius:8px; margin-bottom:20px; border: 1px solid var(--border);">
                     <h4 style="font-size:15px; margin-bottom:15px; color:var(--primary);"><i class="fa-solid fa-clipboard-question"></i> Questionário Obrigatório de Troca</h4>
                     <div class="form-row">
@@ -163,19 +157,14 @@
         <!-- 3. ABA ESTOQUE & TRANSFERÊNCIA -->
         <section id="tab-estoque" class="tab-content">
             <div class="card">
-                <h3>Acompanhar Estoque por Período (Data/Hora Exatas)</h3>
-                <div class="form-row">
-                    <div class="input-group"><label>Data/Hora Inicial</label><input type="datetime-local" id="filtro-data-inicio"></div>
-                    <div class="input-group"><label>Data/Hora Final</label><input type="datetime-local" id="filtro-data-fim"></div>
-                </div>
-                <button class="btn-action" id="btn-filtrar-estoque" type="button" style="background:var(--primary); margin-bottom:20px;">Filtrar Histórico</button>
-                
+                <h3>Acompanhar Histórico de Estoque</h3>
+                <button class="btn-action" id="btn-filtrar-estoque" type="button" style="background:var(--primary); margin-bottom:20px;">Atualizar / Carregar Histórico</button>
                 <table>
                     <thead>
-                        <tr><th>Data / Hora</th><th>Operação / Venda</th><th>Quantidade</th><th>Responsável pelo Depósito</th></tr>
+                        <tr><th>Data / Hora</th><th>Operação / Venda</th><th>Quantidade</th><th>Responsável</th></tr>
                     </thead>
                     <tbody id="tabela-historico-estoque">
-                        <tr><td colspan="4" style="text-align:center;">Selecione o período acima e clique em filtrar.</td></tr>
+                        <tr><td colspan="4" style="text-align:center;">Clique no botão acima para carregar o histórico.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -224,7 +213,6 @@
         </section>
     </main>
 
-    <!-- MODAL DE VISUALIZAÇÃO DOS DETALHES DA TROCA -->
     <div class="modal-overlay" id="modal-troca">
         <div class="modal-card">
             <h3>Informações Detalhadas da Troca</h3>
@@ -240,7 +228,6 @@
     <script>
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         
-        // 1. Verificação de Sessão & Pergunta Obrigatória do Funcionário/Responsável no Login
         let usuarioLogado = null;
         try {
             usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
@@ -251,22 +238,10 @@
         if (!usuarioLogado || usuarioLogado.tipo !== 'deposito') {
             window.location.href = 'index.html';
         } else {
-            if (!usuarioLogado.responsavel) {
-                let resp = prompt("Identificação obrigatória: Digite o nome do Funcionário/Responsável pelo Depósito neste turno:");
-                while (!resp || resp.trim() === "") {
-                    resp = prompt("Obrigatório informar o nome do funcionário responsável para continuar:");
-                }
-                usuarioLogado.responsavel = resp.trim();
-                localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
-            }
-
-            const elDep = document.getElementById('titulo-dep');
-            if (elDep) elDep.innerText = usuarioLogado.nome || 'Depósito';
-            const elOp = document.getElementById('operador-info');
-            if (elOp) elOp.innerText = usuarioLogado.responsavel;
+            document.getElementById('titulo-dep').innerText = usuarioLogado.nome || 'Depósito';
+            document.getElementById('operador-info').innerText = usuarioLogado.nome_operador || 'Operador';
         }
 
-        // 2. Sistema de Navegação das Abas da Barra Lateral e Toggle
         document.addEventListener('DOMContentLoaded', () => {
             const menuItems = document.querySelectorAll('.menu-item');
             const tabContents = document.querySelectorAll('.tab-content');
@@ -281,64 +256,43 @@
 
                     item.classList.add('active');
                     const activeTab = document.getElementById(`tab-${target}`);
-                    if (activeTab) {
-                        activeTab.classList.add('active');
-                    }
+                    if (activeTab) activeTab.classList.add('active');
 
-                    // Carrega dados dinâmicos da aba selecionada
                     if (target === 'dashboard') {
                         carregarDadosDashboard();
                     } else if (target === 'estoque') {
                         carregarSelectsTransferencia();
+                        filtrarEstoquePeriodo();
                     } else if (target === 'movimentacao') {
                         carregarMovimentacoesGerais();
                     }
                 });
             });
 
-            // Toggle Sidebar (Abrir / Fechar)
-            const btnToggle = document.getElementById('btn-toggle');
-            const sidebar = document.getElementById('sidebar');
-            if (btnToggle && sidebar) {
-                btnToggle.addEventListener('click', () => {
-                    sidebar.classList.toggle('collapsed');
-                });
-            }
+            document.getElementById('btn-toggle').addEventListener('click', () => {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+            });
 
-            // Logout
-            const btnSair = document.getElementById('btn-sair');
-            if (btnSair) {
-                btnSair.addEventListener('click', () => {
-                    localStorage.clear();
-                    window.location.href = 'index.html';
-                });
-            }
+            document.getElementById('btn-sair').addEventListener('click', () => {
+                localStorage.clear();
+                window.location.href = 'index.html';
+            });
 
-            // Questionário de Troca (Exibir/Ocultar)
             const checkTroca = document.getElementById('check-troca');
             const blocoTroca = document.getElementById('bloco-troca');
-            if (checkTroca && blocoTroca) {
-                checkTroca.addEventListener('change', () => {
-                    blocoTroca.style.display = checkTroca.checked ? 'block' : 'none';
-                });
-            }
+            checkTroca.addEventListener('change', () => {
+                blocoTroca.style.display = checkTroca.checked ? 'block' : 'none';
+            });
 
-            // Modal Fechar
-            const modalTroca = document.getElementById('modal-troca');
-            const btnFecharModal = document.getElementById('btn-fechar-modal');
-            if (btnFecharModal && modalTroca) {
-                btnFecharModal.addEventListener('click', () => {
-                    modalTroca.style.display = 'none';
-                });
-            }
+            document.getElementById('btn-fechar-modal').addEventListener('click', () => {
+                document.getElementById('modal-troca').style.display = 'none';
+            });
 
-            // Botões de Ação
             document.getElementById('btn-efetivar-venda').addEventListener('click', realizarVenda);
             document.getElementById('btn-transferir').addEventListener('click', realizarTransferencia);
             document.getElementById('btn-filtrar-estoque').addEventListener('click', filtrarEstoquePeriodo);
             document.getElementById('filtro-mov-deposito').addEventListener('change', carregarMovimentacoesGerais);
 
-            // Carga inicial
             carregarDadosDashboard();
         });
 
@@ -351,7 +305,6 @@
             document.getElementById('modal-troca').style.display = 'flex';
         }
 
-        // Funções de Comunicação com Backend
         async function carregarDadosDashboard() {
             if (!usuarioLogado) return;
             try {
@@ -409,7 +362,7 @@
                         quantidade, 
                         pagamento, 
                         tem_troca, 
-                        operador: usuarioLogado.responsavel, 
+                        operador: usuarioLogado.nome_operador, 
                         questionario 
                     })
                 });
@@ -475,7 +428,7 @@
                         tipo_botijao, 
                         caminhao_placa, 
                         motorista, 
-                        operador: usuarioLogado.responsavel 
+                        operador: usuarioLogado.nome_operador 
                     })
                 });
                 const r = await res.json();
@@ -486,12 +439,9 @@
         }
 
         async function filtrarEstoquePeriodo() {
-            const inicio = document.getElementById('filtro-data-inicio').value;
-            const fim = document.getElementById('filtro-data-fim').value;
             const tb = document.getElementById('tabela-historico-estoque');
-            
             try {
-                const res = await fetch(`${BACKEND_URL}/api/deposito/${usuarioLogado.deposito_id}/historico?inicio=${inicio}&fim=${fim}`);
+                const res = await fetch(`${BACKEND_URL}/api/deposito/${usuarioLogado.deposito_id}/historico`);
                 const data = await res.json();
                 tb.innerHTML = '';
                 if (res.ok && data.historico && data.historico.length > 0) {
@@ -499,7 +449,7 @@
                         tb.innerHTML += `<tr><td>${h.data}</td><td>${h.operacao}</td><td>${h.quantidade} un</td><td>${h.responsavel}</td></tr>`;
                     });
                 } else {
-                    tb.innerHTML = `<tr><td colspan="4" style="text-align:center;">Nenhum registro encontrado no período selecionado.</td></tr>`;
+                    tb.innerHTML = `<tr><td colspan="4" style="text-align:center;">Nenhum registro encontrado.</td></tr>`;
                 }
             } catch (e) {
                 tb.innerHTML = `<tr><td colspan="4" style="text-align:center;">Erro ao buscar histórico.</td></tr>`;
