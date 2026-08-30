@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GasControl - Sistema Completo do Depósito</title>
+    <title>GasControl - Painel do Depósito</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -75,19 +75,18 @@
                     <i class="fa-solid fa-user-tie" style="color: var(--primary); margin-right: 5px;"></i> Operador: <strong id="operador-info">-</strong>
                 </div>
             </div>
-            <div id="relogio-turno" style="font-size: 13px; color: var(--muted); font-weight: 500;"></div>
         </header>
 
         <!-- 1. ABA DASHBOARD -->
         <section id="tab-dashboard" class="tab-content active">
             <div class="card">
-                <h3>Vendas de Hoje & Estoque (Antes e Depois)</h3>
+                <h3>Vendas de Hoje & Estoque</h3>
                 <table>
                     <thead>
                         <tr><th>Hora</th><th>Qtd</th><th>Pagamento</th><th>Estoque (Antes ➔ Depois)</th><th>Valor Total</th></tr>
                     </thead>
                     <tbody id="tabela-vendas-hoje">
-                        <tr><td colspan="5" style="text-align:center;">Carregando vendas de hoje...</td></tr>
+                        <tr><td colspan="5" style="text-align:center;">Carregando vendas...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -105,7 +104,7 @@
             </div>
         </section>
 
-        <!-- 2. ABA VENDA & QUESTIONÁRIO DE TROCA -->
+        <!-- 2. ABA VENDA -->
         <section id="tab-venda" class="tab-content">
             <div class="card">
                 <h3>Registrar Venda e Troca de Vasilhame</h3>
@@ -137,16 +136,16 @@
                     </div>
                     <div class="form-row">
                         <div class="input-group">
-                            <label>Qual o Botijão em Tamanho?</label>
+                            <label>Tamanho do Botijão</label>
                             <select id="troca-tamanho">
                                 <option value="P13">P13 (Residencial)</option>
                                 <option value="P45">P45 (Industrial)</option>
                             </select>
                         </div>
-                        <div class="input-group"><label>Qual o Motivo da Troca?</label><input type="text" id="troca-motivo" placeholder="Ex: Gás acabou, amassado, etc."></div>
+                        <div class="input-group"><label>Motivo da Troca</label><input type="text" id="troca-motivo" placeholder="Ex: Gás acabou"></div>
                     </div>
                     <label style="display:flex; align-items:center; gap:10px; font-weight:500; margin-top: 12px; cursor:pointer;">
-                        <input type="checkbox" id="troca-conferido" checked style="width:16px; height:16px;"> Vasilhame foi conferido e repesado na balança?
+                        <input type="checkbox" id="troca-conferido" checked style="width:16px; height:16px;"> Vasilhame conferido e repesado na balança?
                     </label>
                 </div>
 
@@ -154,17 +153,17 @@
             </div>
         </section>
 
-        <!-- 3. ABA ESTOQUE & TRANSFERÊNCIA -->
+        <!-- 3. ABA ESTOQUE -->
         <section id="tab-estoque" class="tab-content">
             <div class="card">
                 <h3>Acompanhar Histórico de Estoque</h3>
-                <button class="btn-action" id="btn-filtrar-estoque" type="button" style="background:var(--primary); margin-bottom:20px;">Atualizar / Carregar Histórico</button>
+                <button class="btn-action" id="btn-filtrar-estoque" type="button" style="background:var(--primary); margin-bottom:20px;">Atualizar Histórico</button>
                 <table>
                     <thead>
-                        <tr><th>Data / Hora</th><th>Operação / Venda</th><th>Quantidade</th><th>Responsável</th></tr>
+                        <tr><th>Data / Hora</th><th>Operação</th><th>Quantidade</th><th>Responsável</th></tr>
                     </thead>
                     <tbody id="tabela-historico-estoque">
-                        <tr><td colspan="4" style="text-align:center;">Clique no botão acima para carregar o histórico.</td></tr>
+                        <tr><td colspan="4" style="text-align:center;">Clique no botão acima para carregar.</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -172,7 +171,7 @@
             <div class="card">
                 <h3>Mover Parte do Estoque para Outra Revenda</h3>
                 <div class="form-row">
-                    <div class="input-group"><label>Depósito Destino</label><select id="trans-destino"><option value="">Selecione a revenda destino...</option></select></div>
+                    <div class="input-group"><label>Depósito Destino</label><select id="trans-destino"><option value="">Selecione...</option></select></div>
                     <div class="input-group">
                         <label>Estado das Botijas</label>
                         <select id="trans-tipo"><option value="cheias">Cheias</option><option value="vazias">Vazias</option></select>
@@ -180,30 +179,28 @@
                 </div>
                 <div class="form-row">
                     <div class="input-group"><label>Quantidade</label><input type="number" id="trans-qtd" value="10" min="1"></div>
-                    <div class="input-group"><label>Caminhão Obrigatório (Placa)</label><select id="trans-caminhao"><option value="">Selecione o caminhão...</option></select></div>
+                    <div class="input-group"><label>Caminhão (Placa)</label><select id="trans-caminhao"><option value="">Selecione...</option></select></div>
                 </div>
                 <div class="form-row">
-                    <div class="input-group"><label>Nome do Motorista</label><input type="text" id="trans-motorista" placeholder="Nome completo do motorista"></div>
+                    <div class="input-group"><label>Nome do Motorista</label><input type="text" id="trans-motorista" placeholder="Nome completo"></div>
                 </div>
-                <button class="btn-action" id="btn-transferir" type="button">Confirmar Transferência de Estoque</button>
+                <button class="btn-action" id="btn-transferir" type="button">Confirmar Transferência</button>
             </div>
         </section>
 
         <!-- 4. ABA MOVIMENTAÇÃO -->
         <section id="tab-movimentacao" class="tab-content">
             <div class="card">
-                <h3>Movimentação de Gás entre Depósitos</h3>
+                <h3>Movimentação Geral entre Depósitos</h3>
                 <div class="form-row" style="margin-bottom: 20px;">
                     <div class="input-group">
-                        <label>Selecionar Depósito para Filtrar</label>
-                        <select id="filtro-mov-deposito">
-                            <option value="">Todos os Depósitos</option>
-                        </select>
+                        <label>Filtrar por Depósito</label>
+                        <select id="filtro-mov-deposito"><option value="">Todos os Depósitos</option></select>
                     </div>
                 </div>
                 <table>
                     <thead>
-                        <tr><th>Data / Hora</th><th>Origem ➔ Destino</th><th>Qtd / Tipo</th><th>Caminhão</th><th>Motorista</th><th>Resp. Depósito</th></tr>
+                        <tr><th>Data / Hora</th><th>Origem ➔ Destino</th><th>Qtd / Tipo</th><th>Caminhão</th><th>Motorista</th><th>Operador</th></tr>
                     </thead>
                     <tbody id="tabela-movimentacoes">
                         <tr><td colspan="6" style="text-align:center;">Nenhuma movimentação registrada.</td></tr>
@@ -215,12 +212,12 @@
 
     <div class="modal-overlay" id="modal-troca">
         <div class="modal-card">
-            <h3>Informações Detalhadas da Troca</h3>
-            <div class="modal-info"><strong>Nome do Cliente:</strong> <span id="m-cliente">-</span></div>
-            <div class="modal-info"><strong>CPF do Cliente:</strong> <span id="m-cpf">-</span></div>
-            <div class="modal-info"><strong>Tamanho Botijão:</strong> <span id="m-tamanho">-</span></div>
-            <div class="modal-info"><strong>Motivo da Troca:</strong> <span id="m-motivo">-</span></div>
-            <div class="modal-info"><strong>Conferido/Repesado:</strong> <span id="m-conferido">-</span></div>
+            <h3>Detalhes da Troca</h3>
+            <div class="modal-info"><strong>Cliente:</strong> <span id="m-cliente">-</span></div>
+            <div class="modal-info"><strong>CPF:</strong> <span id="m-cpf">-</span></div>
+            <div class="modal-info"><strong>Tamanho:</strong> <span id="m-tamanho">-</span></div>
+            <div class="modal-info"><strong>Motivo:</strong> <span id="m-motivo">-</span></div>
+            <div class="modal-info"><strong>Conferido:</strong> <span id="m-conferido">-</span></div>
             <button class="btn-action" type="button" id="btn-fechar-modal" style="margin-top:20px; background:var(--muted);">Fechar</button>
         </div>
     </div>
@@ -246,6 +243,7 @@
             const menuItems = document.querySelectorAll('.menu-item');
             const tabContents = document.querySelectorAll('.tab-content');
 
+            // Navegação otimizada das abas laterais
             menuItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -287,12 +285,9 @@
                 });
             }
 
-            const btnFecharModal = document.getElementById('btn-fechar-modal');
-            if (btnFecharModal) {
-                btnFecharModal.addEventListener('click', () => {
-                    document.getElementById('modal-troca').style.display = 'none';
-                });
-            }
+            document.getElementById('btn-fechar-modal').addEventListener('click', () => {
+                document.getElementById('modal-troca').style.display = 'none';
+            });
 
             document.getElementById('btn-efetivar-venda').addEventListener('click', realizarVenda);
             document.getElementById('btn-transferir').addEventListener('click', realizarTransferencia);
@@ -412,7 +407,7 @@
                     }
                 }
             } catch (e) {
-                console.error("Erro ao carregar dados auxiliares", e);
+                console.error("Erro ao carregar selects", e);
             }
         }
 
@@ -425,7 +420,7 @@
             const motorista = document.getElementById('trans-motorista').value;
 
             if (!destino_id || !caminhao_placa || !motorista) {
-                alert("Preencha todos os campos obrigatórios (Destino, Caminhão e Motorista)!");
+                alert("Preencha todos os campos obrigatórios!");
                 return;
             }
 
