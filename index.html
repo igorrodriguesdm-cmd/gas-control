@@ -7,27 +7,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --danger: #ef4444; }
+        :root { 
+            --primary: #3b82f6; 
+            --primary-hover: #2563eb;
+            --bg: #0f172a; 
+            --card: #1e293b; 
+            --text: #f8fafc; 
+            --muted: #94a3b8; 
+            --border: #334155; 
+            --input-bg: #0f172a;
+            --danger: #ef4444; 
+            --danger-bg: rgba(239, 68, 68, 0.1);
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-card { background: var(--card); padding: 40px; border-radius: 16px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .login-card { background: var(--card); padding: 40px; border-radius: 16px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); }
         .login-header { text-align: center; margin-bottom: 30px; }
+        .login-header i { color: var(--primary); }
         .login-header h1 { font-size: 22px; font-weight: 700; color: var(--text); margin-top: 10px; }
         .login-header p { font-size: 14px; color: var(--muted); }
         .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: #fff; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: var(--input-bg); color: var(--text); transition: border-color 0.2s; }
         .input-group input:focus { border-color: var(--primary); }
-        .btn-login { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; background: var(--primary); font-size: 15px; transition: opacity 0.2s; }
-        .btn-login:hover { opacity: 0.9; }
-        .error-msg { background: #fee2e2; color: var(--danger); padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; text-align: center; display: none; }
+        .input-group input::placeholder { color: #475569; }
+        .btn-login { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; background: var(--primary); font-size: 15px; transition: background 0.2s, opacity 0.2s; }
+        .btn-login:hover { background: var(--primary-hover); }
+        .btn-login:disabled { opacity: 0.7; cursor: not-allowed; }
+        .error-msg { background: var(--danger-bg); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; text-align: center; display: none; }
     </style>
 </head>
 <body>
 
     <div class="login-card">
         <div class="login-header">
-            <i class="fa-solid fa-fire-flame-curved fa-2x" style="color: var(--primary);"></i>
+            <i class="fa-solid fa-fire-flame-curved fa-2x"></i>
             <h1>GasControl</h1>
             <p>Entre com suas credenciais</p>
         </div>
@@ -73,7 +87,7 @@
                     body: JSON.stringify({ 
                         usuario: usuario, 
                         senha: senha, 
-                        nome_operador: nomeOperadorInput // Enviando o nome para passar na auditoria do backend
+                        nome_operador: nomeOperadorInput 
                     })
                 });
 
