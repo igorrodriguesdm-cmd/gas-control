@@ -72,7 +72,7 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <h2 id="titulo-dep">Depósito</h2>
                 <div style="background: #f1f5f9; padding: 6px 14px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border);">
-                    <i class="fa-solid fa-user-tie" style="color: var(--primary); margin-right: 5px;"></i> Operador/Responsável: <strong id="operador-info">-</strong>
+                    <i class="fa-solid fa-user-tie" style="color: var(--primary); margin-right: 5px;"></i> Operador: <strong id="operador-info">-</strong>
                 </div>
             </div>
             <div id="relogio-turno" style="font-size: 13px; color: var(--muted); font-weight: 500;"></div>
@@ -239,7 +239,7 @@
             window.location.href = 'index.html';
         } else {
             document.getElementById('titulo-dep').innerText = usuarioLogado.nome || 'Depósito';
-            document.getElementById('operador-info').innerText = usuarioLogado.nome_operador || 'Operador';
+            document.getElementById('operador-info').innerText = usuarioLogado.nome_operador || usuarioLogado.usuario || 'Operador';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -250,6 +250,7 @@
                 item.addEventListener('click', (e) => {
                     e.preventDefault();
                     const target = item.getAttribute('data-tab');
+                    if (!target) return;
 
                     menuItems.forEach(i => i.classList.remove('active'));
                     tabContents.forEach(c => c.classList.remove('active'));
@@ -280,18 +281,27 @@
 
             const checkTroca = document.getElementById('check-troca');
             const blocoTroca = document.getElementById('bloco-troca');
-            checkTroca.addEventListener('change', () => {
-                blocoTroca.style.display = checkTroca.checked ? 'block' : 'none';
-            });
+            if (checkTroca && blocoTroca) {
+                checkTroca.addEventListener('change', () => {
+                    blocoTroca.style.display = checkTroca.checked ? 'block' : 'none';
+                });
+            }
 
-            document.getElementById('btn-fechar-modal').addEventListener('click', () => {
-                document.getElementById('modal-troca').style.display = 'none';
-            });
+            const btnFecharModal = document.getElementById('btn-fechar-modal');
+            if (btnFecharModal) {
+                btnFecharModal.addEventListener('click', () => {
+                    document.getElementById('modal-troca').style.display = 'none';
+                });
+            }
 
             document.getElementById('btn-efetivar-venda').addEventListener('click', realizarVenda);
             document.getElementById('btn-transferir').addEventListener('click', realizarTransferencia);
             document.getElementById('btn-filtrar-estoque').addEventListener('click', filtrarEstoquePeriodo);
-            document.getElementById('filtro-mov-deposito').addEventListener('change', carregarMovimentacoesGerais);
+            
+            const filtroMov = document.getElementById('filtro-mov-deposito');
+            if (filtroMov) {
+                filtroMov.addEventListener('change', carregarMovimentacoesGerais);
+            }
 
             carregarDadosDashboard();
         });
@@ -383,21 +393,23 @@
                     const selDestino = document.getElementById('trans-destino');
                     const filtroDep = document.getElementById('filtro-mov-deposito');
                     
-                    selDestino.innerHTML = '<option value="">Selecione o destino...</option>';
-                    filtroDep.innerHTML = '<option value="">Todos os Depósitos</option>';
+                    if (selDestino) selDestino.innerHTML = '<option value="">Selecione o destino...</option>';
+                    if (filtroDep) filtroDep.innerHTML = '<option value="">Todos os Depósitos</option>';
 
                     data.depositos.forEach(d => {
                         if (d.id !== usuarioLogado.deposito_id) {
-                            selDestino.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+                            if (selDestino) selDestino.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
                         }
-                        filtroDep.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+                        if (filtroDep) filtroDep.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
                     });
 
                     const selCam = document.getElementById('trans-caminhao');
-                    selCam.innerHTML = '<option value="">Selecione o caminhão...</option>';
-                    data.caminhoes.forEach(c => {
-                        selCam.innerHTML += `<option value="${c.placa}">${c.placa} (Cap: ${c.capacidade})</option>`;
-                    });
+                    if (selCam) {
+                        selCam.innerHTML = '<option value="">Selecione o caminhão...</option>';
+                        data.caminhoes.forEach(c => {
+                            selCam.innerHTML += `<option value="${c.placa}">${c.placa} (Cap: ${c.capacidade})</option>`;
+                        });
+                    }
                 }
             } catch (e) {
                 console.error("Erro ao carregar dados auxiliares", e);
@@ -457,7 +469,8 @@
         }
 
         async function carregarMovimentacoesGerais() {
-            const depFiltro = document.getElementById('filtro-mov-deposito').value;
+            const depFiltroElem = document.getElementById('filtro-mov-deposito');
+            const depFiltro = depFiltroElem ? depFiltroElem.value : '';
             try {
                 const res = await fetch(`${BACKEND_URL}/api/deposito/movimentacoes`);
                 const data = await res.json();
