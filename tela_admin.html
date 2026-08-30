@@ -7,143 +7,151 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-        }
+        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
-        
-        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; }
-        .sidebar-brand { font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px; margin-bottom: 40px; color: #fff; }
-        .sidebar-brand i { color: var(--primary); }
-        .sidebar-menu { list-style: none; flex: 1; }
-        .sidebar-menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; background: rgba(255,255,255,0.08); color: white; }
-        .sidebar-footer { border-top: 1px solid #334155; padding-top: 15px; }
-        .btn-logout { width: 100%; padding: 10px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        header { background: var(--card-bg); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        header h2 { font-size: 22px; font-weight: 600; }
+        /* Sidebar Retrátil */
+        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s ease; }
+        .sidebar.collapsed { width: 80px; }
+        .sidebar.collapsed .brand-text, .sidebar.collapsed .menu-text, .sidebar.collapsed .user-info-text { display: none; }
+        .sidebar-brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+        .sidebar-brand div { display: flex; align-items: center; gap: 10px; }
+        .btn-toggle { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
         
-        .container { padding: 30px; max-width: 1200px; width: 100%; margin: 0 auto; }
+        .menu { list-style: none; flex: 1; }
+        .menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
+        .menu li:hover, .menu li.active { background: rgba(255,255,255,0.1); color: white; }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
-        .stat-icon { width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
-        .stat-icon.cheias { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .stat-icon.vazias { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .stat-icon.defeito { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .stat-info h3 { font-size: 13px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; }
-        .stat-info p { font-size: 24px; font-weight: 700; margin-top: 5px; }
+        .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        header { background: var(--card); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        
+        .content { padding: 30px; max-width: 1200px; width: 100%; margin: 0 auto; display: none; }
+        .content.active { display: block; }
 
-        .card-section { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 30px; }
-        .card-section h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 25px; }
+        .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
         
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
+        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        
+        .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
         .btn-primary:hover { background: var(--primary-dark); }
 
         table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
-        th { background: #f1f5f9; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 12px; }
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
+        th { background: #f1f5f9; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 12px; }
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .badge.danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .msg-aviso { margin-top: 10px; font-size: 13px; font-weight: 500; }
+        
+        .checkbox-list { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-brand"><i class="fa-solid fa-fire-flame-curved"></i> GasControl</div>
-        <ul class="sidebar-menu">
-            <li class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</li>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div><i class="fa-solid fa-fire-flame-curved" style="color: var(--primary);"></i> <span class="brand-text">GasControl</span></div>
+            <button class="btn-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+        </div>
+        <ul class="menu">
+            <li class="active" onclick="mudarAba('dashboard', this)"><i class="fa-solid fa-chart-pie"></i> <span class="menu-text">Dashboard</span></li>
+            <li onclick="mudarAba('cadastro', this)"><i class="fa-solid fa-folder-plus"></i> <span class="menu-text">Cadastro</span></li>
+            <li onclick="mudarAba('relatorios', this)"><i class="fa-solid fa-file-lines"></i> <span class="menu-text">Relatórios</span></li>
         </ul>
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="sair()"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        <div style="border-top: 1px solid #334155; padding-top: 15px;">
+            <button onclick="sair()" style="width:100%; padding:10px; background:rgba(239,68,68,0.1); color:var(--danger); border:none; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-right-from-bracket"></i> <span class="menu-text">Sair</span></button>
         </div>
     </div>
 
-    <div class="main-content">
+    <div class="main">
         <header>
-            <h2>Painel Administrativo</h2>
-            <div id="nome-admin" style="color: var(--text-muted);">Admin</div>
+            <h2 id="titulo-pagina">Dashboard Geral</h2>
+            <div id="admin-nome" style="font-weight: 600; color: var(--muted);">Admin</div>
         </header>
 
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon cheias"><i class="fa-solid fa-gas-pump"></i></div>
-                    <div class="stat-info"><h3>Total Cheias</h3><p id="total-cheias">0</p></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon vazias"><i class="fa-solid fa-circle"></i></div>
-                    <div class="stat-info"><h3>Total Vazias</h3><p id="total-vazias">0</p></div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon defeito"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                    <div class="stat-info"><h3>Com Defeito</h3><p id="total-defeito">0</p></div>
-                </div>
+        <!-- ABA DASHBOARD -->
+        <div id="aba-dashboard" class="content active">
+            <div class="card">
+                <h3><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Visão Geral dos Depósitos</h3>
+                <table>
+                    <thead>
+                        <tr><th>Depósito</th><th>Vendas Hoje</th><th>Estoque Cheias</th><th>Estoque Vazias</th><th>Defeito</th><th>Caminhão / Placa</th><th>Horário</th></tr>
+                    </thead>
+                    <tbody id="tabela-dashboard-depositos">
+                        <tr><td colspan="7" style="text-align: center;">Carregando...</td></tr>
+                    </tbody>
+                </table>
             </div>
+        </div>
 
-            <!-- Cadastro de Novo Depósito -->
-            <div class="card-section">
+        <!-- ABA CADASTRO -->
+        <div id="aba-cadastro" class="content">
+            <div class="card">
                 <h3><i class="fa-solid fa-building-circle-arrow-right" style="color: var(--primary);"></i> Cadastrar Novo Depósito</h3>
                 <div class="form-grid">
-                    <div class="input-group">
-                        <label>Nome do Depósito</label>
-                        <input type="text" id="novo-nome" placeholder="Ex: Depósito Norte">
+                    <div class="input-group"><label>Nome do Depósito</label><input type="text" id="cad-nome" placeholder="Ex: Depósito Norte"></div>
+                    <div class="input-group"><label>Razão Social</label><input type="text" id="cad-razao" placeholder="Razão Social Ltda"></div>
+                    <div class="input-group"><label>CNPJ</label><input type="text" id="cad-cnpj" placeholder="00.000.000/0001-00"></div>
+                    <div class="input-group"><label>Endereço Completo</label><input type="text" id="cad-endereco" placeholder="Rua, Número, Bairro"></div>
+                    <div class="input-group"><label>Estoque Inicial Cheias</label><input type="number" id="cad-cheias" value="100"></div>
+                    <div class="input-group"><label>Início Funcionamento</label><input type="time" id="cad-h-inicio" value="08:00"></div>
+                    <div class="input-group"><label>Fim Funcionamento</label><input type="time" id="cad-h-fim" value="18:00"></div>
+                    <div class="input-group"><label>Tipo de Fechamento</label>
+                        <select id="cad-fechamento">
+                            <option value="automatico">Automático (Horário Comercial)</option>
+                            <option value="manual_24h">Manual 24h</option>
+                        </select>
                     </div>
-                    <div class="input-group">
-                        <label>Estoque Inicial Cheias</label>
-                        <input type="number" id="novo-cheias" value="100">
+                    <div class="input-group"><label>Usuário de Acesso</label><input type="text" id="cad-usuario" placeholder="dep_norte"></div>
+                    <div class="input-group"><label>Senha de Acesso</label><input type="password" id="cad-senha" placeholder="Senha"></div>
+                </div>
+                <label style="display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:8px; text-transform:uppercase;">Formas de Pagamento Aceitas</label>
+                <div class="checkbox-list">
+                    <label><input type="checkbox" name="pag" value="Dinheiro" checked> Dinheiro</label>
+                    <label><input type="checkbox" name="pag" value="PIX" checked> PIX</label>
+                    <label><input type="checkbox" name="pag" value="Cartão de Crédito" checked> Cartão de Crédito</label>
+                    <label><input type="checkbox" name="pag" value="Cartão de Débito" checked> Cartão de Débito</label>
+                </div>
+                <button class="btn-primary" onclick="salvarDeposito()">Cadastrar Depósito</button>
+            </div>
+
+            <div class="card">
+                <h3><i class="fa-solid fa-truck" style="color: var(--primary);"></i> Cadastrar Caminhão / Frota</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>Placa do Caminhão</label><input type="text" id="cam-placa" placeholder="ABC-1234"></div>
+                    <div class="input-group"><label>Capacidade de Botijões</label><input type="number" id="cam-capacidade" value="80"></div>
+                </div>
+                <button class="btn-primary" onclick="salvarCaminhao()">Cadastrar Caminhão</button>
+            </div>
+        </div>
+
+        <!-- ABA RELATÓRIOS -->
+        <div id="aba-relatorios" class="content">
+            <div class="card">
+                <h3><i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> Gerar Relatórios Gerenciais e Financeiros</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>Data Início</label><input type="date" id="rel-inicio"></div>
+                    <div class="input-group"><label>Data Fim</label><input type="date" id="rel-fim"></div>
+                </div>
+                <button class="btn-primary" onclick="gerarRelatorio()">Gerar Relatório Consolidado</button>
+            </div>
+
+            <div class="card" id="resultado-relatorio" style="display: none;">
+                <h3>Resultado do Relatório</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px;">
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px;">
+                        <h4 style="font-size: 13px; color: var(--muted);">Total de Gás Vendido</h4>
+                        <p id="rel-total-gas" style="font-size: 24px; font-weight: 700;">0 un</p>
                     </div>
-                    <div class="input-group">
-                        <label>Usuário de Acesso</label>
-                        <input type="text" id="novo-usuario" placeholder="Ex: dep3">
-                    </div>
-                    <div class="input-group">
-                        <label>Senha de Acesso</label>
-                        <input type="password" id="novo-senha" placeholder="Senha">
+                    <div style="background: #f1f5f9; padding: 15px; border-radius: 8px;">
+                        <h4 style="font-size: 13px; color: var(--muted);">Faturamento Total em Valores</h4>
+                        <p id="rel-total-valor" style="font-size: 24px; font-weight: 700; color: var(--success);">R$ 0,00</p>
                     </div>
                 </div>
-                <button class="btn-primary" onclick="cadastrarDeposito()">Salvar Novo Depósito</button>
-                <div id="msg-cadastro" class="msg-aviso"></div>
-            </div>
-
-            <div class="card-section">
-                <h3><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Rede de Depósitos</h3>
-                <table>
-                    <thead>
-                        <tr><th>Depósito</th><th>Cheias</th><th>Vazias</th><th>Defeituosas</th></tr>
-                    </thead>
-                    <tbody id="tabela-depositos">
-                        <tr><td colspan="4" style="text-align: center;">Carregando...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="card-section">
-                <h3><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Últimas Movimentações</h3>
-                <table>
-                    <thead>
-                        <tr><th>Operação</th><th>Depósito</th><th>Qtd</th><th>Detalhes / Pagamento</th></tr>
-                    </thead>
-                    <tbody id="tabela-historico">
-                        <tr><td colspan="4" style="text-align: center;">Nenhuma movimentação.</td></tr>
-                    </tbody>
-                </table>
+                <h4>Faturamento por Forma de Pagamento</h4>
+                <ul id="rel-por-pagamento" style="list-style: none; margin-top: 10px; margin-bottom: 20px;"></ul>
             </div>
         </div>
     </div>
@@ -151,41 +159,40 @@
     <script>
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
-
         if (!usuarioLogado || usuarioLogado.tipo !== 'admin') window.location.href = 'index.html';
+        document.getElementById('admin-nome').innerText = usuarioLogado.nome_operador;
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        function mudarAba(aba, el) {
+            document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.menu li').forEach(l => l.classList.remove('active'));
+            document.getElementById(`aba-${aba}`).classList.add('active');
+            el.classList.add('active');
+            const titulos = { 'dashboard': 'Dashboard Geral', 'cadastro': 'Painel de Cadastros', 'relatorios': 'Relatórios e Auditoria' };
+            document.getElementById('titulo-pagina').innerText = titulos[aba];
+            if (aba === 'dashboard') carregarDashboard();
+        }
 
         async function carregarDashboard() {
             try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/dashboard`);
-                const data = await response.json();
-
-                if (response.ok) {
-                    document.getElementById('total-cheias').innerText = data.totais.cheias;
-                    document.getElementById('total-vazias').innerText = data.totais.vazias;
-                    document.getElementById('total-defeito').innerText = data.totais.defeito;
-
-                    const tbodyDep = document.getElementById('tabela-depositos');
-                    tbodyDep.innerHTML = '';
-                    data.depositos.forEach(dep => {
-                        tbodyDep.innerHTML += `
+                const res = await fetch(`${BACKEND_URL}/api/admin/dashboard`);
+                const data = await res.json();
+                if (res.ok) {
+                    const tbody = document.getElementById('tabela-dashboard-depositos');
+                    tbody.innerHTML = '';
+                    data.depositos.forEach(d => {
+                        tbody.innerHTML += `
                             <tr>
-                                <td><strong>${dep.nome}</strong></td>
-                                <td><span class="badge success">${dep.cheias} un</span></td>
-                                <td><span class="badge warning">${dep.vazias} un</span></td>
-                                <td><span class="badge danger">${dep.defeito} un</span></td>
-                            </tr>
-                        `;
-                    });
-
-                    const tbodyHist = document.getElementById('tabela-historico');
-                    tbodyHist.innerHTML = '';
-                    data.historico.reverse().forEach(h => {
-                        tbodyHist.innerHTML += `
-                            <tr>
-                                <td><strong>${h.tipo}</strong></td>
-                                <td>${h.deposito}</td>
-                                <td>${h.quantidade} un</td>
-                                <td>${h.status}</td>
+                                <td><strong>${d.nome}</strong></td>
+                                <td><span class="badge success">${d.vendas_hoje} un</span></td>
+                                <td>${d.cheias}</td>
+                                <td>${d.vazias}</td>
+                                <td>${d.defeito}</td>
+                                <td><i class="fa-solid fa-truck"></i> ${d.caminhao_parado}</td>
+                                <td>${d.horario}</td>
                             </tr>
                         `;
                     });
@@ -193,40 +200,61 @@
             } catch (err) { console.error(err); }
         }
 
-        async function cadastrarDeposito() {
-            const nome = document.getElementById('novo-nome').value.trim();
-            const cheias = document.getElementById('novo-cheias').value;
-            const usuario = document.getElementById('novo-usuario').value.trim();
-            const senha = document.getElementById('novo-senha').value.trim();
-            const msg = document.getElementById('msg-cadastro');
+        async function salvarDeposito() {
+            const pagamentos = Array.from(document.querySelectorAll('input[name="pag"]:checked')).map(cb => cb.value);
+            const dados = {
+                tipo: 'deposito',
+                nome: document.getElementById('cad-nome').value,
+                razao_social: document.getElementById('cad-razao').value,
+                cnpj: document.getElementById('cad-cnpj').value,
+                endereco: document.getElementById('cad-endereco').value,
+                cheias: document.getElementById('cad-cheias').value,
+                horario_inicio: document.getElementById('cad-h-inicio').value,
+                horario_fim: document.getElementById('cad-h-fim').value,
+                tipo_fechamento: document.getElementById('cad-fechamento').value,
+                usuario: document.getElementById('cad-usuario').value,
+                senha: document.getElementById('cad-senha').value,
+                pagamentos: pagamentos,
+                caminhoes_fixos: ["ABC-1234"]
+            };
 
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/criar-deposito`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, cheias, usuario, senha })
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    msg.style.color = 'var(--success)';
-                    msg.innerText = data.mensagem;
-                    carregarDashboard();
-                    document.getElementById('novo-nome').value = '';
-                    document.getElementById('novo-usuario').value = '';
-                    document.getElementById('novo-senha').value = '';
-                } else {
-                    msg.style.color = 'var(--danger)';
-                    msg.innerText = data.erro;
+            const res = await fetch(`${BACKEND_URL}/api/admin/cadastrar-tudo`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(dados)
+            });
+            const r = await res.json();
+            alert(r.mensagem || r.erro);
+            if (res.ok) carregarDashboard();
+        }
+
+        async function salvarCaminhao() {
+            const placa = document.getElementById('cam-placa').value;
+            const capacidade = document.getElementById('cam-capacidade').value;
+            const res = await fetch(`${BACKEND_URL}/api/admin/cadastrar-tudo`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ tipo: 'caminhao', placa, capacidade })
+            });
+            const r = await res.json();
+            alert(r.mensagem || r.erro);
+        }
+
+        async function gerarRelatorio() {
+            const res = await fetch(`${BACKEND_URL}/api/admin/relatorios`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({})
+            });
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById('resultado-relatorio').style.display = 'block';
+                document.getElementById('rel-total-gas').innerText = `${data.total_gas_vendido} botijões`;
+                document.getElementById('rel-total-valor').innerText = `R$ ${data.faturamento_total.toFixed(2)}`;
+                
+                const ul = document.getElementById('rel-por-pagamento');
+                ul.innerHTML = '';
+                for (const [pag, val] of Object.entries(data.por_forma_pagamento)) {
+                    ul.innerHTML += `<li style="padding:8px 0; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between;"><span>${pag}</span><strong>R$ ${val.toFixed(2)}</strong></li>`;
                 }
-            } catch (err) {
-                msg.style.color = 'var(--danger)';
-                msg.innerText = 'Erro ao cadastrar depósito.';
             }
         }
 
-        function sair() { localStorage.clear(); window.location.href = 'index.html'; }
         carregarDashboard();
-        setInterval(carregarDashboard, 10000);
     </script>
 </body>
 </html>
