@@ -3,87 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GasControl - Acesso ao Sistema</title>
+    <title>GasControl - Login</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2563eb; --primary-dark: #1d4ed8; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --text-muted: #94a3b8; --border: #334155; --danger: #ef4444; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --muted: #64748b; --border: #e2e8f0; --danger: #ef4444; }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .login-card { background: var(--card); padding: 40px; border-radius: 16px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-        .brand { text-align: center; margin-bottom: 30px; }
-        .brand i { font-size: 40px; color: var(--primary); margin-bottom: 10px; }
-        .brand h1 { font-size: 24px; font-weight: 700; }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px; }
-        .input-group input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 15px; }
-        .input-group input:focus { border-color: var(--primary); outline: none; }
-        .btn-login { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: background 0.2s; }
-        .btn-login:hover { background: var(--primary-dark); }
-        .error-msg { background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 10px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; text-align: center; display: none; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .login-card { background: var(--card); padding: 40px; border-radius: 12px; border: 1px solid var(--border); width: 100%; max-width: 400px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .login-card h2 { margin-bottom: 24px; font-size: 22px; text-align: center; color: var(--primary); }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+        .input-group input, .input-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); }
+        .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 15px; margin-top: 10px; }
+        .btn-submit:hover { opacity: 0.9; }
+        #mensagem-erro { color: var(--danger); font-size: 13px; text-align: center; margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
     <div class="login-card">
-        <div class="brand">
-            <i class="fa-solid fa-fire-flame-curved"></i>
-            <h1>GasControl</h1>
-        </div>
-        <div id="erro" class="error-msg"></div>
-        <div class="input-group">
-            <label>Seu Nome Completo (Obrigatório para Auditoria)</label>
-            <input type="text" id="nome-operador" placeholder="Ex: Carlos Silva">
-        </div>
-        <div class="input-group">
-            <label>Usuário</label>
-            <input type="text" id="usuario" placeholder="Digite seu usuário">
-        </div>
-        <div class="input-group">
-            <label>Senha</label>
-            <input type="password" id="senha" placeholder="Digite sua senha">
-        </div>
-        <button class="btn-login" onclick="fazerLogin()">Entrar no Sistema</button>
+        <h2>GasControl - Acesso</h2>
+        <form id="form-login">
+            <div class="input-group">
+                <label>Usuário / E-mail</label>
+                <input type="text" id="login-usuario" required placeholder="Digite seu usuário">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="login-senha" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn-submit">Entrar no Sistema</button>
+            <div id="mensagem-erro"></div>
+        </form>
     </div>
 
     <script>
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
 
-        async function fazerLogin() {
-            const nome_operador = document.getElementById('nome-operador').value.trim();
-            const usuario = document.getElementById('usuario').value.trim();
-            const senha = document.getElementById('senha').value.trim();
-            const erroDiv = document.getElementById('erro');
+        document.getElementById('form-login').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const usuario = document.getElementById('login-usuario').value.trim();
+            const senha = document.getElementById('login-senha').value.trim();
+            const msgErro = document.getElementById('mensagem-erro');
 
-            if (!nome_operador) {
-                erroDiv.innerText = "Por favor, digite seu nome completo para continuar.";
-                erroDiv.style.display = 'block';
-                return;
-            }
+            msgErro.style.display = 'none';
 
             try {
                 const response = await fetch(`${BACKEND_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, senha, nome_operador })
+                    body: JSON.stringify({ usuario, senha })
                 });
+
                 const data = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('usuario', JSON.stringify(data));
-                    if (data.tipo === 'admin') {
+                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    
+                    if (data.usuario.tipo === 'admin') {
                         window.location.href = 'tela_admin.html';
-                    } else {
+                    } else if (data.usuario.tipo === 'deposito') {
                         window.location.href = 'tela_deposito.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
                     }
                 } else {
-                    erroDiv.innerText = data.erro;
-                    erroDiv.style.display = 'block';
+                    msgErro.innerText = data.erro || 'Credenciais inválidas.';
+                    msgErro.style.display = 'block';
                 }
             } catch (err) {
-                erroDiv.innerText = "Erro ao conectar com o servidor.";
-                erroDiv.style.display = 'block';
+                msgErro.innerText = 'Erro ao conectar com o servidor. Verifique sua conexão.';
+                msgErro.style.display = 'block';
             }
-        }
+        });
     </script>
 </body>
 </html>
