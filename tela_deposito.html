@@ -11,21 +11,21 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s; z-index: 10; }
+        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s; z-index: 10; flex-shrink: 0; }
         .sidebar.collapsed { width: 80px; }
         .sidebar.collapsed .brand-text, .sidebar.collapsed .menu-text { display: none; }
         .sidebar-brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; color: white; }
         .btn-toggle { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
         
-        .menu { list-style: none; flex: 1; }
-        .menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: background 0.2s, color 0.2s; }
-        .menu li:hover, .menu li.active { background: rgba(255,255,255,0.1); color: white; }
+        .menu { list-style: none; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .menu-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: background 0.2s, color 0.2s; user-select: none; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); color: white; }
 
-        .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        header { background: var(--card); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; }
+        header { background: var(--card); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         
-        .content { padding: 30px; max-width: 1000px; width: 100%; margin: 0 auto; display: none; }
-        .content.active { display: block; }
+        .tab-pane { padding: 30px; max-width: 1000px; width: 100%; margin: 0 auto; display: none; }
+        .tab-pane.active { display: block; }
 
         .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 25px; }
         .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
@@ -45,16 +45,16 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div><i class="fa-solid fa-fire-flame-curved" style="color: var(--primary);"></i> <span class="brand-text">GasControl</span></div>
-            <button class="btn-toggle" id="btn-toggle-sidebar"><i class="fa-solid fa-bars"></i></button>
+            <button class="btn-toggle" id="btn-toggle-sidebar" type="button"><i class="fa-solid fa-bars"></i></button>
         </div>
         <ul class="menu">
-            <li class="active" data-target="aba-dashboard"><i class="fa-solid fa-chart-pie"></i> <span class="menu-text">Dashboard</span></li>
-            <li data-target="aba-venda"><i class="fa-solid fa-cart-shopping"></i> <span class="menu-text">Venda</span></li>
-            <li data-target="aba-estoque"><i class="fa-solid fa-boxes-stacked"></i> <span class="menu-text">Estoque & Transferência</span></li>
-            <li data-target="aba-movimentacao"><i class="fa-solid fa-right-left"></i> <span class="menu-text">Movimentação</span></li>
+            <li><div class="menu-item active" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> <span class="menu-text">Dashboard</span></div></li>
+            <li><div class="menu-item" data-tab="venda"><i class="fa-solid fa-cart-shopping"></i> <span class="menu-text">Venda</span></div></li>
+            <li><div class="menu-item" data-tab="estoque"><i class="fa-solid fa-boxes-stacked"></i> <span class="menu-text">Estoque & Transferência</span></div></li>
+            <li><div class="menu-item" data-tab="movimentacao"><i class="fa-solid fa-right-left"></i> <span class="menu-text">Movimentação</span></div></li>
         </ul>
         <div style="border-top:1px solid #334155; padding-top:15px;">
-            <button id="btn-sair" style="width:100%; padding:10px; background:rgba(239,68,68,0.1); color:var(--danger); border:none; border-radius:8px; cursor:pointer;"><i class="fa-solid fa-right-from-bracket"></i> <span class="menu-text">Sair</span></button>
+            <button id="btn-sair" type="button" style="width:100%; padding:10px; background:rgba(239,68,68,0.1); color:var(--danger); border:none; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fa-solid fa-right-from-bracket"></i> <span class="menu-text">Sair</span></button>
         </div>
     </div>
 
@@ -65,7 +65,7 @@
         </header>
 
         <!-- DASHBOARD DO DEPÓSITO -->
-        <div id="aba-dashboard" class="content active">
+        <div id="tab-dashboard" class="tab-pane active">
             <div class="card">
                 <h3>Vendas Realizadas Hoje</h3>
                 <table>
@@ -83,7 +83,7 @@
         </div>
 
         <!-- ABA VENDA COM TROCA E QUESTIONÁRIO -->
-        <div id="aba-venda" class="content">
+        <div id="tab-venda" class="tab-pane">
             <div class="card">
                 <h3>Registrar Nova Venda e Troca</h3>
                 <div class="form-row">
@@ -117,12 +117,12 @@
                     <label style="display:flex; align-items:center; gap:10px; font-weight:500;"><input type="checkbox" id="troca-conferido" checked> Vasilhame conferido e repesado na balança?</label>
                 </div>
 
-                <button class="btn-action" id="btn-efetivar-venda">Efetivar Venda</button>
+                <button class="btn-action" id="btn-efetivar-venda" type="button">Efetivar Venda</button>
             </div>
         </div>
 
         <!-- ABA ESTOQUE & TRANSFERÊNCIA -->
-        <div id="aba-estoque" class="content">
+        <div id="tab-estoque" class="tab-pane">
             <div class="card">
                 <h3>Transferir Estoque para Outra Revenda</h3>
                 <div class="form-row">
@@ -136,12 +136,12 @@
                 <div class="form-row">
                     <div class="input-group"><label>Nome do Motorista</label><input type="text" id="trans-motorista" placeholder="Nome do motorista"></div>
                 </div>
-                <button class="btn-action" id="btn-transferir">Confirmar Transferência com Frota</button>
+                <button class="btn-action" id="btn-transferir" type="button">Confirmar Transferência com Frota</button>
             </div>
         </div>
 
         <!-- ABA MOVIMENTAÇÃO -->
-        <div id="aba-movimentacao" class="content">
+        <div id="tab-movimentacao" class="tab-pane">
             <div class="card">
                 <h3>Histórico de Movimentações e Frotas Envolvidas</h3>
                 <table>
@@ -171,31 +171,29 @@
             if (elOp) elOp.innerText = `Operador: ${usuarioLogado.nome_operador || 'Geral'}`;
         }
 
-        // Lógica limpa e direta de navegação por abas
-        const menuItems = document.querySelectorAll('.menu li');
-        const contents = document.querySelectorAll('.content');
+        // Sistema de Abas Robusto com delegação e isolamento direto
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Remove active de todos os itens e painéis
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
 
-        menuItems.forEach(item => {
-            item.addEventListener('click', function() {
-                const targetId = this.getAttribute('data-target');
-
-                // Remove classes active de todas as abas e menus
-                menuItems.forEach(mi => mi.classList.remove('active'));
-                contents.forEach(c => c.classList.remove('active'));
-
-                // Ativa o item clicado e o conteúdo correspondente
+                // Adiciona active no item clicado e painel correspondente
                 this.classList.add('active');
-                const targetContent = document.getElementById(targetId);
-                if (targetContent) {
-                    targetContent.classList.add('active');
+                const pane = document.getElementById(`tab-${targetTab}`);
+                if (pane) {
+                    pane.classList.add('active');
                 }
 
-                // Gatilhos de carregamento específicos por aba
-                if (targetId === 'aba-dashboard') {
+                // Dispara carregamentos condicionais
+                if (targetTab === 'dashboard') {
                     carregarDadosDeposito();
-                } else if (targetId === 'aba-estoque') {
+                } else if (targetTab === 'estoque') {
                     carregarSelectsTransferencia();
-                } else if (targetId === 'aba-movimentacao') {
+                } else if (targetTab === 'movimentacao') {
                     carregarMovimentacoes();
                 }
             });
@@ -218,7 +216,7 @@
             });
         }
 
-        // Toggle formulário de troca
+        // Checkbox troca
         const checkTroca = document.getElementById('check-troca');
         const blocoTroca = document.getElementById('bloco-troca');
         if (checkTroca && blocoTroca) {
@@ -227,7 +225,7 @@
             });
         }
 
-        // Ações dos botões principais
+        // Botões de Ação
         const btnVenda = document.getElementById('btn-efetivar-venda');
         if (btnVenda) btnVenda.addEventListener('click', realizarVenda);
 
@@ -369,7 +367,7 @@
             }
         }
 
-        // Executa carga inicial
+        // Carga inicial
         carregarDadosDeposito();
     </script>
 </body>
