@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GasControl - Painel Operacional</title>
+    <title>GasControl - Painel do Depósito</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -11,37 +11,50 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s; z-index: 10; flex-shrink: 0; }
+        /* BARRA LATERAL RETRÁTIL */
+        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s ease; z-index: 10; flex-shrink: 0; }
         .sidebar.collapsed { width: 80px; }
         .sidebar.collapsed .brand-text, .sidebar.collapsed .menu-text { display: none; }
-        .sidebar-brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; color: white; }
+        .sidebar-brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; color: white; white-space: nowrap; }
         .btn-toggle { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
         
-        .menu { list-style: none; flex: 1; display: flex; flex-direction: column; gap: 5px; }
-        .menu-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: background 0.2s, color 0.2s; user-select: none; }
+        .menu { list-style: none; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .menu-item { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; transition: background 0.2s, color 0.2s; white-space: nowrap; }
         .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.1); color: white; }
 
+        /* CONTEÚDO PRINCIPAL */
         .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; height: 100vh; }
         header { background: var(--card); padding: 20px 30px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         
-        .tab-pane { padding: 30px; max-width: 1000px; width: 100%; margin: 0 auto; display: none; }
+        .tab-pane { padding: 30px; max-width: 1100px; width: 100%; margin: 0 auto; display: none; }
         .tab-pane.active { display: block; }
 
-        .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 25px; }
-        .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 24px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .card h3 { font-size: 18px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; color: var(--text); }
 
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group select, .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .input-group select, .input-group input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
+        .input-group select:focus, .input-group input:focus { border-color: var(--primary); }
         
-        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: white; background: var(--success); }
+        .btn-action { width: 100%; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: white; background: var(--success); font-size: 15px; transition: opacity 0.2s; }
+        .btn-action:hover { opacity: 0.9; }
         
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; }
         th { background: #f1f5f9; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 12px; }
+
+        /* MODAL DE DETALHES DA TROCA */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-card { background: white; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .modal-card h3 { margin-bottom: 15px; font-size: 18px; }
+        .modal-info { margin-bottom: 12px; font-size: 14px; }
+        .modal-info strong { color: var(--muted); display: inline-block; width: 140px; }
     </style>
 </head>
 <body>
+
+    <!-- BARRA LATERAL -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div><i class="fa-solid fa-fire-flame-curved" style="color: var(--primary);"></i> <span class="brand-text">GasControl</span></div>
@@ -49,7 +62,7 @@
         </div>
         <ul class="menu">
             <li><div class="menu-item active" data-tab="dashboard"><i class="fa-solid fa-chart-pie"></i> <span class="menu-text">Dashboard</span></div></li>
-            <li><div class="menu-item" data-tab="venda"><i class="fa-solid fa-cart-shopping"></i> <span class="menu-text">Venda</span></div></li>
+            <li><div class="menu-item" data-tab="venda"><i class="fa-solid fa-cart-shopping"></i> <span class="menu-text">Venda & Troca</span></div></li>
             <li><div class="menu-item" data-tab="estoque"><i class="fa-solid fa-boxes-stacked"></i> <span class="menu-text">Estoque & Transferência</span></div></li>
             <li><div class="menu-item" data-tab="movimentacao"><i class="fa-solid fa-right-left"></i> <span class="menu-text">Movimentação</span></div></li>
         </ul>
@@ -58,34 +71,35 @@
         </div>
     </div>
 
+    <!-- TELA PRINCIPAL -->
     <div class="main">
         <header>
             <h2 id="titulo-dep">Depósito</h2>
-            <div id="operador-info" style="font-weight:600; color:var(--muted);">Operador</div>
+            <div id="operador-info" style="font-weight:600; color:var(--muted);">Responsável: -</div>
         </header>
 
-        <!-- DASHBOARD DO DEPÓSITO -->
+        <!-- 1. ABA DASHBOARD -->
         <div id="tab-dashboard" class="tab-pane active">
             <div class="card">
                 <h3>Vendas Realizadas Hoje</h3>
                 <table>
-                    <thead><tr><th>Hora</th><th>Qtd</th><th>Pagamento</th><th>Estoque Antes/Depois</th><th>Total</th></tr></thead>
-                    <tbody id="tabela-vendas-hoje"><tr><td colspan="5" style="text-align:center;">Nenhuma venda hoje.</td></tr></tbody>
+                    <thead><tr><th>Hora</th><th>Qtd</th><th>Pagamento</th><th>Estoque (Antes ➔ Depois)</th><th>Total (R$)</th></tr></thead>
+                    <tbody id="tabela-vendas-hoje"><tr><td colspan="5" style="text-align:center;">Nenhuma venda registrada hoje.</td></tr></tbody>
                 </table>
             </div>
             <div class="card">
-                <h3>Trocas Realizadas Hoje (Questionários)</h3>
+                <h3>Trocas Realizadas Hoje</h3>
                 <table>
-                    <thead><tr><th>Cliente</th><th>CPF</th><th>Botijão</th><th>Motivo</th><th>Repesado?</th></tr></thead>
-                    <tbody id="tabela-trocas-hoje"><tr><td colspan="5" style="text-align:center;">Nenhuma troca registrada.</td></tr></tbody>
+                    <thead><tr><th>Hora</th><th>Cliente</th><th>Botijão</th><th>Motivo</th><th>Ação</th></tr></thead>
+                    <tbody id="tabela-trocas-hoje"><tr><td colspan="5" style="text-align:center;">Nenhuma troca registrada hoje.</td></tr></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- ABA VENDA COM TROCA E QUESTIONÁRIO -->
+        <!-- 2. ABA VENDA E QUESTIONÁRIO DE TROCA -->
         <div id="tab-venda" class="tab-pane">
             <div class="card">
-                <h3>Registrar Nova Venda e Troca</h3>
+                <h3>Registrar Nova Venda</h3>
                 <div class="form-row">
                     <div class="input-group"><label>Quantidade de Botijões</label><input type="number" id="venda-qtd" value="1" min="1"></div>
                     <div class="input-group"><label>Forma de Pagamento</label>
@@ -97,64 +111,108 @@
                         </select>
                     </div>
                 </div>
-                <label style="display:flex; align-items:center; gap:10px; margin-bottom:20px; font-weight:500; cursor:pointer;">
-                    <input type="checkbox" id="check-troca" checked> Houve troca de vasilhame vazio?
+
+                <label style="display:flex; align-items:center; gap:10px; margin: 20px 0; font-weight:600; cursor:pointer;">
+                    <input type="checkbox" id="check-troca" checked style="width:18px; height:18px;"> Houve troca de vasilhame vazio?
                 </label>
 
                 <!-- Questionário de Troca -->
-                <div id="bloco-troca" style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:20px;">
-                    <h4 style="font-size:15px; margin-bottom:12px;">Questionário da Troca de Vasilhame</h4>
+                <div id="bloco-troca" style="background:#f1f5f9; padding:20px; border-radius:8px; margin-bottom:20px; border: 1px solid var(--border);">
+                    <h4 style="font-size:15px; margin-bottom:15px; color:var(--primary);"><i class="fa-solid fa-clipboard-question"></i> Questionário de Troca de Vasilhame</h4>
                     <div class="form-row">
                         <div class="input-group"><label>Nome do Cliente</label><input type="text" id="troca-cliente" placeholder="Nome Completo"></div>
                         <div class="input-group"><label>CPF do Cliente</label><input type="text" id="troca-cpf" placeholder="000.000.000-00"></div>
                     </div>
                     <div class="form-row">
                         <div class="input-group"><label>Tamanho do Botijão</label>
-                            <select id="troca-tamanho"><option value="P13">P13 (Residencial)</option><option value="P45">P45 (Industrial)</option></select>
+                            <select id="troca-tamanho">
+                                <option value="P13">P13 (Residencial)</option>
+                                <option value="P45">P45 (Industrial)</option>
+                            </select>
                         </div>
-                        <div class="input-group"><label>Motivo da Troca</label><input type="text" id="troca-motivo" placeholder="Ex: Gás acabou / Vencido"></div>
+                        <div class="input-group"><label>Motivo da Troca</label><input type="text" id="troca-motivo" placeholder="Ex: Gás acabou / Vencido / Amassado"></div>
                     </div>
-                    <label style="display:flex; align-items:center; gap:10px; font-weight:500;"><input type="checkbox" id="troca-conferido" checked> Vasilhame conferido e repesado na balança?</label>
+                    <label style="display:flex; align-items:center; gap:10px; font-weight:500; margin-top: 10px; cursor:pointer;">
+                        <input type="checkbox" id="troca-conferido" checked style="width:16px; height:16px;"> Vasilhame conferido e repesado na balança?
+                    </label>
                 </div>
 
-                <button class="btn-action" id="btn-efetivar-venda" type="button">Efetivar Venda</button>
+                <button class="btn-action" id="btn-efetivar-venda" type="button">Efetivar Venda e Dar Baixa</button>
             </div>
         </div>
 
-        <!-- ABA ESTOQUE & TRANSFERÊNCIA -->
+        <!-- 3. ABA ESTOQUE E TRANSFERÊNCIA -->
         <div id="tab-estoque" class="tab-pane">
+            <!-- Bloco de Acompanhamento por Período -->
+            <div class="card">
+                <h3>Acompanhar Estoque por Período</h3>
+                <div class="form-row">
+                    <div class="input-group"><label>Data/Hora Inicial</label><input type="datetime-local" id="filtro-data-inicio"></div>
+                    <div class="input-group"><label>Data/Hora Final</label><input type="datetime-local" id="filtro-data-fim"></div>
+                </div>
+                <button class="btn-action" id="btn-filtrar-estoque" type="button" style="background:var(--primary); margin-bottom:20px;">Filtrar Histórico de Estoque</button>
+                
+                <table>
+                    <thead><tr><th>Data/Hora</th><th>Operação</th><th>Qtd Movimentada</th><th>Resp. pelo Depósito</th></tr></thead>
+                    <tbody id="tabela-historico-estoque"><tr><td colspan="4" style="text-align:center;">Selecione o período para carregar.</td></tr></tbody>
+                </table>
+            </div>
+
+            <!-- Bloco de Transferência de Estoque -->
             <div class="card">
                 <h3>Transferir Estoque para Outra Revenda</h3>
                 <div class="form-row">
-                    <div class="input-group"><label>Depósito Destino</label><select id="trans-destino"><option value="">Selecione...</option></select></div>
-                    <div class="input-group"><label>Tipo de Botijão</label><select id="trans-tipo"><option value="cheias">Cheios</option><option value="vazias">Vazios</option></select></div>
+                    <div class="input-group"><label>Depósito Destino</label><select id="trans-destino"><option value="">Selecione o destino...</option></select></div>
+                    <div class="input-group"><label>Tipo de Botijão</label><select id="trans-tipo"><option value="cheias">Cheias</option><option value="vazias">Vazias</option></select></div>
                 </div>
                 <div class="form-row">
-                    <div class="input-group"><label>Quantidade</label><input type="number" id="trans-qtd" value="10"></div>
-                    <div class="input-group"><label>Caminhão (Placa)</label><select id="trans-caminhao"></select></div>
+                    <div class="input-group"><label>Quantidade</label><input type="number" id="trans-qtd" value="10" min="1"></div>
+                    <div class="input-group"><label>Caminhão Obrigatório (Placa)</label><select id="trans-caminhao"><option value="">Selecione o caminhão...</option></select></div>
                 </div>
                 <div class="form-row">
-                    <div class="input-group"><label>Nome do Motorista</label><input type="text" id="trans-motorista" placeholder="Nome do motorista"></div>
+                    <div class="input-group"><label>Nome do Motorista</label><input type="text" id="trans-motorista" placeholder="Nome completo do motorista"></div>
                 </div>
                 <button class="btn-action" id="btn-transferir" type="button">Confirmar Transferência com Frota</button>
             </div>
         </div>
 
-        <!-- ABA MOVIMENTAÇÃO -->
+        <!-- 4. ABA MOVIMENTAÇÃO -->
         <div id="tab-movimentacao" class="tab-pane">
             <div class="card">
-                <h3>Histórico de Movimentações e Frotas Envolvidas</h3>
+                <h3>Consulta de Movimentações entre Depósitos</h3>
+                <div class="form-row" style="margin-bottom: 20px;">
+                    <div class="input-group">
+                        <label>Filtrar por Depósito</label>
+                        <select id="filtro-mov-deposito">
+                            <option value="">Todos os Depósitos</option>
+                        </select>
+                    </div>
+                </div>
                 <table>
-                    <thead><tr><th>Data/Hora</th><th>Origem</th><th>Destino</th><th>Qtd</th><th>Tipo</th><th>Caminhão</th><th>Motorista</th></tr></thead>
-                    <tbody id="tabela-movimentacoes"><tr><td colspan="7" style="text-align:center;">Nenhuma movimentação registrada.</td></tr></tbody>
+                    <thead><tr><th>Data/Hora</th><th>Origem ➔ Destino</th><th>Qtd / Tipo</th><th>Caminhão</th><th>Motorista</th><th>Resp. Depósito</th></tr></thead>
+                    <tbody id="tabela-movimentacoes"><tr><td colspan="6" style="text-align:center;">Nenhuma movimentação registrada.</td></tr></tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE VISUALIZAÇÃO DOS DETALHES DA TROCA -->
+    <div class="modal-overlay" id="modal-troca">
+        <div class="modal-card">
+            <h3>Detalhes da Troca de Vasilhame</h3>
+            <div class="modal-info"><strong>Cliente:</strong> <span id="m-cliente">-</span></div>
+            <div class="modal-info"><strong>CPF:</strong> <span id="m-cpf">-</span></div>
+            <div class="modal-info"><strong>Tamanho Botijão:</strong> <span id="m-tamanho">-</span></div>
+            <div class="modal-info"><strong>Motivo:</strong> <span id="m-motivo">-</span></div>
+            <div class="modal-info"><strong>Repesado/Conferido:</strong> <span id="m-conferido">-</span></div>
+            <button class="btn-action" type="button" id="btn-fechar-modal" style="margin-top:20px; background:var(--muted);">Fechar</button>
         </div>
     </div>
 
     <script>
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         
+        // Verificação e Coleta Obrigatória do Responsável pelo Depósito no Login
         let usuarioLogado = null;
         try {
             usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
@@ -165,41 +223,47 @@
         if (!usuarioLogado || usuarioLogado.tipo !== 'deposito') {
             window.location.href = 'index.html';
         } else {
+            // Garante pergunta obrigatória se não houver responsável definido na sessão
+            if (!usuarioLogado.responsavel) {
+                let resp = prompt("Identificação obrigatória: Digite o nome do Responsável pelo Depósito neste turno:");
+                while (!resp || resp.trim() === "") {
+                    resp = prompt("Obrigatório informar o Responsável pelo Depósito para continuar:");
+                }
+                usuarioLogado.responsavel = resp.trim();
+                localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+            }
+
             const elDep = document.getElementById('titulo-dep');
             if (elDep) elDep.innerText = usuarioLogado.nome || 'Depósito';
             const elOp = document.getElementById('operador-info');
-            if (elOp) elOp.innerText = `Operador: ${usuarioLogado.nome_operador || 'Geral'}`;
+            if (elOp) elOp.innerText = `Responsável: ${usuarioLogado.responsavel}`;
         }
 
-        // Sistema de Abas Robusto com delegação e isolamento direto
+        // Navegação Robusta por Abas da Sidebar
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetTab = this.getAttribute('data-tab');
                 
-                // Remove active de todos os itens e painéis
                 document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
                 document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
 
-                // Adiciona active no item clicado e painel correspondente
                 this.classList.add('active');
                 const pane = document.getElementById(`tab-${targetTab}`);
-                if (pane) {
-                    pane.classList.add('active');
-                }
+                if (pane) pane.classList.add('active');
 
-                // Dispara carregamentos condicionais
+                // Executa ações específicas ao abrir a aba
                 if (targetTab === 'dashboard') {
-                    carregarDadosDeposito();
+                    carregarDadosDashboard();
                 } else if (targetTab === 'estoque') {
                     carregarSelectsTransferencia();
                 } else if (targetTab === 'movimentacao') {
-                    carregarMovimentacoes();
+                    carregarMovimentacoesGerais();
                 }
             });
         });
 
-        // Toggle Sidebar
+        // Toggle Sidebar (Abrir / Fechar)
         const btnToggle = document.getElementById('btn-toggle-sidebar');
         if (btnToggle) {
             btnToggle.addEventListener('click', () => {
@@ -207,7 +271,7 @@
             });
         }
 
-        // Logout
+        // Botão Sair / Logout
         const btnSair = document.getElementById('btn-sair');
         if (btnSair) {
             btnSair.addEventListener('click', () => {
@@ -216,7 +280,7 @@
             });
         }
 
-        // Checkbox troca
+        // Toggle bloco de troca
         const checkTroca = document.getElementById('check-troca');
         const blocoTroca = document.getElementById('bloco-troca');
         if (checkTroca && blocoTroca) {
@@ -225,45 +289,59 @@
             });
         }
 
-        // Botões de Ação
-        const btnVenda = document.getElementById('btn-efetivar-venda');
-        if (btnVenda) btnVenda.addEventListener('click', realizarVenda);
+        // Ações Principais
+        document.getElementById('btn-efetivar-venda').addEventListener('click', realizarVenda);
+        document.getElementById('btn-transferir').addEventListener('click', realizarTransferencia);
+        document.getElementById('btn-filtrar-estoque').addEventListener('click', filtrarEstoquePeriodo);
+        document.getElementById('filtro-mov-deposito').addEventListener('change', carregarMovimentacoesGerais);
 
-        const btnTransferir = document.getElementById('btn-transferir');
-        if (btnTransferir) btnTransferir.addEventListener('click', realizarTransferencia);
+        // Modal de Trocas
+        const modalTroca = document.getElementById('modal-troca');
+        document.getElementById('btn-fechar-modal').addEventListener('click', () => {
+            modalTroca.style.display = 'none';
+        });
 
-        async function carregarDadosDeposito() {
+        function abrirModalTroca(t) {
+            document.getElementById('m-cliente').innerText = t.cliente || '-';
+            document.getElementById('m-cpf').innerText = t.cpf || '-';
+            document.getElementById('m-tamanho').innerText = t.tamanho_botijao || '-';
+            document.getElementById('m-motivo').innerText = t.motivo || '-';
+            document.getElementById('m-conferido').innerText = t.conferido_repesado ? 'Sim' : 'Não';
+            modalTroca.style.display = 'flex';
+        }
+
+        // Funções de Comunicação com Backend
+        async function carregarDadosDashboard() {
             if (!usuarioLogado) return;
             try {
                 const res = await fetch(`${BACKEND_URL}/api/deposito/${usuarioLogado.deposito_id}/dados`);
                 const data = await res.json();
                 if (res.ok) {
                     const tbVendas = document.getElementById('tabela-vendas-hoje');
-                    if (tbVendas) {
-                        tbVendas.innerHTML = '';
-                        if (data.vendas_hoje && data.vendas_hoje.length > 0) {
-                            data.vendas_hoje.forEach(v => {
-                                tbVendas.innerHTML += `<tr><td>${v.data}</td><td>${v.quantidade} un</td><td>${v.pagamento}</td><td>${v.estoque_antes} ➔ ${v.estoque_depois}</td><td>R$ ${v.valor_total.toFixed(2)}</td></tr>`;
-                            });
-                        } else {
-                            tbVendas.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhuma venda hoje.</td></tr>`;
-                        }
+                    tbVendas.innerHTML = '';
+                    if (data.vendas_hoje && data.vendas_hoje.length > 0) {
+                        data.vendas_hoje.forEach(v => {
+                            tbVendas.innerHTML += `<tr><td>${v.data}</td><td>${v.quantidade} un</td><td>${v.pagamento}</td><td>${v.estoque_antes} ➔ ${v.estoque_depois}</td><td>R$ ${v.valor_total.toFixed(2)}</td></tr>`;
+                        });
+                    } else {
+                        tbVendas.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhuma venda registrada hoje.</td></tr>`;
                     }
 
                     const tbTrocas = document.getElementById('tabela-trocas-hoje');
-                    if (tbTrocas) {
-                        tbTrocas.innerHTML = '';
-                        if (data.trocas_hoje && data.trocas_hoje.length > 0) {
-                            data.trocas_hoje.forEach(t => {
-                                tbTrocas.innerHTML += `<tr><td>${t.cliente}</td><td>${t.cpf}</td><td>${t.tamanho_botijao}</td><td>${t.motivo}</td><td>${t.conferido_repesado ? 'Sim' : 'Não'}</td></tr>`;
-                            });
-                        } else {
-                            tbTrocas.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhuma troca registrada.</td></tr>`;
-                        }
+                    tbTrocas.innerHTML = '';
+                    if (data.trocas_hoje && data.trocas_hoje.length > 0) {
+                        data.trocas_hoje.forEach((t, index) => {
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `<td>${t.data || 'Hoje'}</td><td>${t.cliente}</td><td>${t.tamanho_botijao}</td><td>${t.motivo}</td><td><button class="btn-action" type="button" style="padding:4px 8px; font-size:12px; background:var(--primary);">Ver Detalhes</button></td>`;
+                            tr.querySelector('button').addEventListener('click', () => abrirModalTroca(t));
+                            tbTrocas.appendChild(tr);
+                        });
+                    } else {
+                        tbTrocas.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhuma troca registrada hoje.</td></tr>`;
                     }
                 }
             } catch (e) {
-                console.error("Erro ao carregar dados do depósito", e);
+                console.error("Erro ao carregar dashboard", e);
             }
         }
 
@@ -285,11 +363,18 @@
                 const res = await fetch(`${BACKEND_URL}/api/deposito/vender`, {
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ deposito_id: usuarioLogado.deposito_id, quantidade, pagamento, tem_troca, operador: usuarioLogado.nome_operador, questionario })
+                    body: JSON.stringify({ 
+                        deposito_id: usuarioLogado.deposito_id, 
+                        quantidade, 
+                        pagamento, 
+                        tem_troca, 
+                        operador: usuarioLogado.responsavel, 
+                        questionario 
+                    })
                 });
                 const r = await res.json();
                 alert(r.mensagem || r.erro);
-                if (res.ok) carregarDadosDeposito();
+                if (res.ok) carregarDadosDashboard();
             } catch (e) {
                 alert("Erro ao realizar venda.");
             }
@@ -302,25 +387,26 @@
                 const data = await res.json();
                 if (res.ok) {
                     const selDestino = document.getElementById('trans-destino');
-                    if (selDestino) {
-                        selDestino.innerHTML = '<option value="">Selecione...</option>';
-                        data.depositos.forEach(d => {
-                            if (d.id !== usuarioLogado.deposito_id) {
-                                selDestino.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
-                            }
-                        });
-                    }
+                    const filtroDep = document.getElementById('filtro-mov-deposito');
+                    
+                    selDestino.innerHTML = '<option value="">Selecione o destino...</option>';
+                    filtroDep.innerHTML = '<option value="">Todos os Depósitos</option>';
+
+                    data.depositos.forEach(d => {
+                        if (d.id !== usuarioLogado.deposito_id) {
+                            selDestino.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+                        }
+                        filtroDep.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+                    });
 
                     const selCam = document.getElementById('trans-caminhao');
-                    if (selCam) {
-                        selCam.innerHTML = '';
-                        data.caminhoes.forEach(c => {
-                            selCam.innerHTML += `<option value="${c.placa}">${c.placa} (Cap: ${c.capacidade})</option>`;
-                        });
-                    }
+                    selCam.innerHTML = '<option value="">Selecione o caminhão...</option>';
+                    data.caminhoes.forEach(c => {
+                        selCam.innerHTML += `<option value="${c.placa}">${c.placa} (Cap: ${c.capacidade})</option>`;
+                    });
                 }
             } catch (e) {
-                console.error("Erro ao carregar selects de transferência", e);
+                console.error("Erro ao carregar dados auxiliares", e);
             }
         }
 
@@ -332,11 +418,24 @@
             const caminhao_placa = document.getElementById('trans-caminhao').value;
             const motorista = document.getElementById('trans-motorista').value;
 
+            if (!destino_id || !caminhao_placa || !motorista) {
+                alert("Preencha todos os campos obrigatórios, incluindo o caminhão e o motorista!");
+                return;
+            }
+
             try {
                 const res = await fetch(`${BACKEND_URL}/api/deposito/transferir`, {
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ origem_id: usuarioLogado.deposito_id, destino_id, quantidade, tipo_botijao, caminhao_placa, motorista, operador: usuarioLogado.nome_operador })
+                    body: JSON.stringify({ 
+                        origem_id: usuarioLogado.deposito_id, 
+                        destino_id, 
+                        quantidade, 
+                        tipo_botijao, 
+                        caminhao_placa, 
+                        motorista, 
+                        operador: usuarioLogado.responsavel 
+                    })
                 });
                 const r = await res.json();
                 alert(r.mensagem || r.erro);
@@ -345,21 +444,43 @@
             }
         }
 
-        async function carregarMovimentacoes() {
+        async function filtrarEstoquePeriodo() {
+            const inicio = document.getElementById('filtro-data-inicio').value;
+            const fim = document.getElementById('filtro-data-fim').value;
+            const tb = document.getElementById('tabela-historico-estoque');
+            
+            try {
+                const res = await fetch(`${BACKEND_URL}/api/deposito/${usuarioLogado.deposito_id}/historico?inicio=${inicio}&fim=${fim}`);
+                const data = await res.json();
+                tb.innerHTML = '';
+                if (res.ok && data.historico && data.historico.length > 0) {
+                    data.historico.forEach(h => {
+                        tb.innerHTML += `<tr><td>${h.data}</td><td>${h.operacao}</td><td>${h.quantidade} un</td><td>${h.responsavel}</td></tr>`;
+                    });
+                } else {
+                    tb.innerHTML = `<tr><td colspan="4" style="text-align:center;">Nenhum registro encontrado no período selecionado.</td></tr>`;
+                }
+            } catch (e) {
+                tb.innerHTML = `<tr><td colspan="4" style="text-align:center;">Erro ao buscar histórico.</td></tr>`;
+            }
+        }
+
+        async function carregarMovimentacoesGerais() {
+            const depFiltro = document.getElementById('filtro-mov-deposito').value;
             try {
                 const res = await fetch(`${BACKEND_URL}/api/deposito/movimentacoes`);
                 const data = await res.json();
                 if (res.ok) {
                     const tb = document.getElementById('tabela-movimentacoes');
-                    if (tb) {
-                        tb.innerHTML = '';
-                        if (data && data.length > 0) {
-                            data.forEach(m => {
-                                tb.innerHTML += `<tr><td>${m.data}</td><td>${m.origem}</td><td>${m.destino}</td><td>${m.quantidade} (${m.tipo_botijao})</td><td>${m.caminhao}</td><td>${m.motorista} (${m.operador})</td></tr>`;
-                            });
-                        } else {
-                            tb.innerHTML = `<tr><td colspan="7" style="text-align:center;">Nenhuma movimentação registrada.</td></tr>`;
-                        }
+                    tb.innerHTML = '';
+                    const filtrados = data.filter(m => !depFiltro || m.origem_id == depFiltro || m.destino_id == depFiltro);
+                    
+                    if (filtrados.length > 0) {
+                        filtrados.forEach(m => {
+                            tb.innerHTML += `<tr><td>${m.data}</td><td>${m.origem} ➔ ${m.destino}</td><td>${m.quantidade} un (${m.tipo_botijao})</td><td>${m.caminhao}</td><td>${m.motorista}</td><td>${m.operador}</td></tr>`;
+                        });
+                    } else {
+                        tb.innerHTML = `<tr><td colspan="6" style="text-align:center;">Nenhuma movimentação encontrada.</td></tr>`;
                     }
                 }
             } catch (e) {
@@ -367,8 +488,8 @@
             }
         }
 
-        // Carga inicial
-        carregarDadosDeposito();
+        // Inicialização padrão ao abrir o painel
+        carregarDadosDashboard();
     </script>
 </body>
 </html>
