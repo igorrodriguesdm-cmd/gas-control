@@ -71,7 +71,16 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('usuario', JSON.stringify(data));
+                    // Normaliza os dados para garantir que nome_operador e nome existam na sessão
+                    const dadosSessao = {
+                        deposito_id: data.deposito_id,
+                        nome: data.nome || 'Depósito',
+                        tipo: data.tipo,
+                        nome_operador: data.nome_operador || data.nome || usuario
+                    };
+
+                    localStorage.setItem('usuario', JSON.stringify(dadosSessao));
+
                     if (data.tipo === 'admin') {
                         window.location.href = 'tela_admin.html';
                     } else {
