@@ -16,8 +16,8 @@
         .login-header p { font-size: 14px; color: var(--muted); }
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group input, .input-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: #fff; }
-        .input-group input:focus, .input-group select:focus { border-color: var(--primary); }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; background: #fff; }
+        .input-group input:focus { border-color: var(--primary); }
         .btn-login { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; color: white; background: var(--primary); font-size: 15px; transition: opacity 0.2s; }
         .btn-login:hover { opacity: 0.9; }
         .error-msg { background: #fee2e2; color: var(--danger); padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 20px; text-align: center; display: none; }
@@ -84,7 +84,7 @@
                     btnEntrar.innerText = 'Entrar no Sistema';
                 }
             } catch (err) {
-                msgErro.innerText = 'O servidor no Render está acordando ou inacessível. Aguarde 30 segundos e tente novamente.';
+                msgErro.innerText = 'O servidor no Render está acordando. Aguarde 30 segundos e tente de novo.';
                 msgErro.style.display = 'block';
                 btnEntrar.disabled = false;
                 btnEntrar.innerText = 'Entrar no Sistema';
