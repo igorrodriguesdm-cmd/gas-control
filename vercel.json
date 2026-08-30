@@ -1,15 +1,17 @@
 {
+
   "version": 2,
+
   "builds": [
-    {
-      "src": "app.py",
-      "use": "@vercel/python"
-    }
+
+    { "src": "*.html", "use": "@vercel/static" }
+
   ],
+
   "routes": [
-    {
-      "src": "/(.*)",
-      "destination": "app.py"
-    }
+
+    { "src": "/(.*)", "destination": "/index.html" }
+
   ]
+
 }
