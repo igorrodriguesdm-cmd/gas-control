@@ -13,8 +13,8 @@
         .login-card h2 { margin-bottom: 24px; font-size: 22px; text-align: center; color: var(--primary); }
         .input-group { margin-bottom: 16px; }
         .input-group label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-        .input-group input, .input-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
-        .input-group input:focus, .input-group select:focus { border-color: var(--primary); }
+        .input-group input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; outline: none; }
+        .input-group input:focus { border-color: var(--primary); }
         .btn-submit { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 15px; margin-top: 10px; }
         .btn-submit:hover { opacity: 0.9; }
         #mensagem-erro { color: var(--danger); font-size: 13px; text-align: center; margin-top: 15px; display: none; }
@@ -25,12 +25,16 @@
         <h2>GasControl - Acesso</h2>
         <form id="form-login">
             <div class="input-group">
-                <label>Usuário / E-mail</label>
+                <label>Usuário</label>
                 <input type="text" id="login-usuario" required placeholder="Digite seu usuário">
             </div>
             <div class="input-group">
                 <label>Senha</label>
                 <input type="password" id="login-senha" required placeholder="••••••••">
+            </div>
+            <div class="input-group">
+                <label>Seu Nome (Obrigatório para Auditoria)</label>
+                <input type="text" id="login-nome-operador" required placeholder="Digite seu nome completo">
             </div>
             <button type="submit" class="btn-submit">Entrar no Sistema</button>
             <div id="mensagem-erro"></div>
@@ -44,6 +48,7 @@
             e.preventDefault();
             const usuario = document.getElementById('login-usuario').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
+            const nome_operador = document.getElementById('login-nome-operador').value.trim();
             const msgErro = document.getElementById('mensagem-erro');
 
             msgErro.style.display = 'none';
@@ -52,17 +57,17 @@
                 const response = await fetch(`${BACKEND_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, senha })
+                    body: JSON.stringify({ usuario, senha, nome_operador })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    localStorage.setItem('usuario', JSON.stringify(data));
                     
-                    if (data.usuario.tipo === 'admin') {
+                    if (data.tipo === 'admin') {
                         window.location.href = 'tela_admin.html';
-                    } else if (data.usuario.tipo === 'deposito') {
+                    } else if (data.tipo === 'deposito') {
                         window.location.href = 'tela_deposito.html';
                     } else {
                         window.location.href = 'dashboard.html';
