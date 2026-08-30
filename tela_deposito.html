@@ -74,8 +74,13 @@
     <!-- TELA PRINCIPAL -->
     <div class="main">
         <header>
-            <h2 id="titulo-dep">Depósito</h2>
-            <div id="operador-info" style="font-weight:600; color:var(--muted);">Responsável: -</div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <h2 id="titulo-dep">Depósito</h2>
+                <div style="background: #f1f5f9; padding: 6px 12px; border-radius: 6px; font-size: 13px; border: 1px solid var(--border);">
+                    <i class="fa-solid fa-user-tie" style="color: var(--primary); margin-right: 5px;"></i> Operador/Responsável: <strong id="operador-info">-</strong>
+                </div>
+            </div>
+            <div id="relogio-turno" style="font-size: 13px; color: var(--muted); font-weight: 500;"></div>
         </header>
 
         <!-- 1. ABA DASHBOARD -->
@@ -210,7 +215,6 @@
     <script>
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         
-        // 1. Verificação de login e Pergunta Obrigatória do Responsável
         let usuarioLogado = null;
         try {
             usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
@@ -222,9 +226,9 @@
             window.location.href = 'index.html';
         } else {
             if (!usuarioLogado.responsavel) {
-                let resp = prompt("Identificação obrigatória: Digite o nome do Responsável pelo Depósito neste turno:");
+                let resp = prompt("Identificação obrigatória: Digite o nome do Responsável/Funcionário no Depósito neste turno:");
                 while (!resp || resp.trim() === "") {
-                    resp = prompt("Obrigatório informar o Responsável pelo Depósito para continuar:");
+                    resp = prompt("Obrigatório informar o nome do funcionário responsável para continuar:");
                 }
                 usuarioLogado.responsavel = resp.trim();
                 localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
@@ -233,10 +237,9 @@
             const elDep = document.getElementById('titulo-dep');
             if (elDep) elDep.innerText = usuarioLogado.nome || 'Depósito';
             const elOp = document.getElementById('operador-info');
-            if (elOp) elOp.innerText = `Responsável: ${usuarioLogado.responsavel}`;
+            if (elOp) elOp.innerText = usuarioLogado.responsavel;
         }
 
-        // 2. Sistema de Abas (Sidebar) à prova de falhas
         document.addEventListener('DOMContentLoaded', () => {
             const menuItems = document.querySelectorAll('.menu-item');
             const tabPanes = document.querySelectorAll('.tab-pane');
@@ -254,7 +257,6 @@
                         pane.classList.add('active');
                     }
 
-                    // Ações automáticas ao abrir abas específicas
                     if (target === 'dashboard') {
                         carregarDadosDashboard();
                     } else if (target === 'estoque') {
@@ -265,7 +267,6 @@
                 });
             });
 
-            // Toggle Sidebar Retrátil
             const btnToggle = document.getElementById('btn-toggle-sidebar');
             const sidebar = document.getElementById('sidebar');
             if (btnToggle && sidebar) {
@@ -274,7 +275,6 @@
                 });
             }
 
-            // Logout
             const btnSair = document.getElementById('btn-sair');
             if (btnSair) {
                 btnSair.addEventListener('click', () => {
@@ -283,7 +283,6 @@
                 });
             }
 
-            // Checkbox Troca
             const checkTroca = document.getElementById('check-troca');
             const blocoTroca = document.getElementById('bloco-troca');
             if (checkTroca && blocoTroca) {
@@ -292,7 +291,6 @@
                 });
             }
 
-            // Modals e Ações
             const modalTroca = document.getElementById('modal-troca');
             const btnFecharModal = document.getElementById('btn-fechar-modal');
             if (btnFecharModal && modalTroca) {
@@ -306,7 +304,6 @@
             document.getElementById('btn-filtrar-estoque').addEventListener('click', filtrarEstoquePeriodo);
             document.getElementById('filtro-mov-deposito').addEventListener('change', carregarMovimentacoesGerais);
 
-            // Carga inicial
             carregarDadosDashboard();
         });
 
@@ -319,7 +316,6 @@
             document.getElementById('modal-troca').style.display = 'flex';
         }
 
-        // Funções de API
         async function carregarDadosDashboard() {
             if (!usuarioLogado) return;
             try {
