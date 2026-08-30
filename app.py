@@ -6,7 +6,6 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-# Banco de dados centralizado em memória estruturado
 DATABASE = {
     "usuarios": [
         {"id": 1, "usuario": "admin", "senha": "123", "tipo": "admin", "nome": "Administrador Geral"},
@@ -26,16 +25,16 @@ DATABASE = {
             "caminhoes_fixos": ["ABC-1234"],
             "horario_inicio": "08:00",
             "horario_fim": "18:00",
-            "tipo_fechamento": "automatico" # automatico ou manual_24h
+            "tipo_fechamento": "automatico"
         }
     },
     "caminhoes": [
         {"id": 1, "placa": "ABC-1234", "capacidade": 80},
         {"id": 2, "placa": "XYZ-9876", "capacidade": 120}
     ],
-    "vendas": [],      # Histórico detalhado de vendas
-    "trocas": [],      # Histórico de trocas/garantias com questionário completo
-    "movimentacoes": [], # Movimentações entre depósitos e frotas
+    "vendas": [],
+    "trocas": [],
+    "movimentacoes": [],
     "fechamentos_diarios": []
 }
 
@@ -66,15 +65,11 @@ def login():
 def admin_dashboard():
     lista_depositos = []
     agora = datetime.now()
-    hora_atual = agora.strftime("%H:%M")
     hoje_str = agora.strftime("%Y-%m-%d")
 
     for dep_id, dep in DATABASE["depositos"].items():
-        # Vendas de hoje neste depósito
         vendas_hoje = [v for v in DATABASE["vendas"] if v["deposito_id"] == dep_id and v["data"].startswith(hoje_str)]
         total_vendas_hoje = sum(v["quantidade"] for v in vendas_hoje)
-
-        # Caminhões vinculados ou estacionados (simulando status)
         caminhao_parado = dep["caminhoes_fixos"][0] if dep["caminhoes_fixos"] else "Nenhum"
 
         lista_depositos.append({
@@ -160,8 +155,6 @@ def cadastrar_tudo():
 def gerar_relatorios():
     data = request.get_json() or {}
     depositos_selecionados = data.get('depositos_ids', [])
-    data_inicio = data.get('data_inicio')
-    data_fim = data.get('data_fim')
 
     vendas_filtradas = [
         v for v in DATABASE["vendas"] 
@@ -200,6 +193,17 @@ def dados_deposito(dep_id):
         "trocas_hoje": trocas_hoje
     }), 200
 
+@app.route('/api/deposito/<int:dep_id>/historico', methods=['GET'])
+def historico_deposito(dep_id):
+    vendas_dep = [v for v in DATABASE["vendas"] if v["deposito_id"] == dep_id]
+    historico_formatado = [{
+        "data": v["data"],
+        "operacao": f"Venda ({v['quantidade']} un - {v['pagamento']})",
+        "quantidade": v["quantidade"],
+        "responsavel": v["operador"]
+    } for v in vendas_dep]
+    return jsonify({"historico": historico_formatado}), 200
+
 @app.route('/api/deposito/vender', methods=['POST'])
 def registrar_venda_detalhada():
     data = request.get_json() or {}
@@ -208,8 +212,6 @@ def registrar_venda_detalhada():
     pagamento = data.get('pagamento')
     operador = data.get('operador')
     tem_troca = data.get('tem_troca', False)
-    
-    # Dados do questionário de troca, se houver
     questionario = data.get('questionario', {})
 
     dep = DATABASE["depositos"].get(dep_id)
@@ -225,8 +227,7 @@ def registrar_venda_detalhada():
         dep["vazias"] += qtd
     
     estoque_depois = dep["cheias"]
-    valor_unitario = 110.00 # Exemplo de preço base do botijão P13
-    valor_total = qtd * valor_unitario
+    valor_total = qtd * 110.00
     agora_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     venda_registro = {
@@ -266,7 +267,7 @@ def transferir_estoque():
     origem_id = int(data.get('origem_id'))
     destino_id = int(data.get('destino_id'))
     quantidade = int(data.get('quantidade', 0))
-    tipo_botijao = data.get('tipo_botijao', 'cheias') # cheias ou vazias
+    tipo_botijao = data.get('tipo_botijao', 'cheias')
     caminhao_placa = data.get('caminhao_placa')
     motorista = data.get('motorista')
     operador = data.get('operador')
@@ -288,6 +289,8 @@ def transferir_estoque():
 
     mov_registro = {
         "id": len(DATABASE["movimentacoes"]) + 1,
+        "origem_id": origem_id,
+        "destino_id": destino_id,
         "origem": origem["nome"],
         "destino": destino["nome"],
         "quantidade": quantidade,
