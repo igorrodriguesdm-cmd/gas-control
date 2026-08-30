@@ -232,11 +232,13 @@
             usuarioLogado = null;
         }
 
+        // Validação de segurança: Se não houver sessão ou não for depósito, manda pro login
         if (!usuarioLogado || usuarioLogado.tipo !== 'deposito') {
             window.location.href = 'index.html';
         } else {
+            // Garante que o nome e operador apareçam sem falhar
             document.getElementById('titulo-dep').innerText = usuarioLogado.nome || 'Depósito';
-            document.getElementById('operador-info').innerText = usuarioLogado.nome_operador || usuarioLogado.usuario || 'Operador';
+            document.getElementById('operador-info').innerText = usuarioLogado.nome_operador || usuarioLogado.nome || 'Operador';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -357,6 +359,8 @@
                 conferido: document.getElementById('troca-conferido').checked
             };
 
+            const operadorNome = usuarioLogado.nome_operador || usuarioLogado.nome || 'Operador';
+
             try {
                 const res = await fetch(`${BACKEND_URL}/api/deposito/vender`, {
                     method: 'POST', 
@@ -366,7 +370,7 @@
                         quantidade, 
                         pagamento, 
                         tem_troca, 
-                        operador: usuarioLogado.nome_operador, 
+                        operador: operadorNome, 
                         questionario 
                     })
                 });
@@ -417,6 +421,7 @@
             const quantidade = document.getElementById('trans-qtd').value;
             const caminhao_placa = document.getElementById('trans-caminhao').value;
             const motorista = document.getElementById('trans-motorista').value;
+            const operadorNome = usuarioLogado.nome_operador || usuarioLogado.nome || 'Operador';
 
             if (!destino_id || !caminhao_placa || !motorista) {
                 alert("Preencha todos os campos obrigatórios!");
@@ -434,7 +439,7 @@
                         tipo_botijao, 
                         caminhao_placa, 
                         motorista, 
-                        operador: usuarioLogado.nome_operador 
+                        operador: operadorNome 
                     })
                 });
                 const r = await res.json();
