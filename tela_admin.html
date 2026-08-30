@@ -11,16 +11,15 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
-        /* Sidebar Retrátil */
-        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s ease; }
+        .sidebar { width: 260px; background: #0f172a; color: white; display: flex; flex-direction: column; padding: 20px; transition: width 0.3s ease; flex-shrink: 0; }
         .sidebar.collapsed { width: 80px; }
-        .sidebar.collapsed .brand-text, .sidebar.collapsed .menu-text, .sidebar.collapsed .user-info-text { display: none; }
+        .sidebar.collapsed .brand-text, .sidebar.collapsed .menu-text { display: none; }
         .sidebar-brand { font-size: 18px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
         .sidebar-brand div { display: flex; align-items: center; gap: 10px; }
         .btn-toggle { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
         
         .menu { list-style: none; flex: 1; }
-        .menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; }
+        .menu li { padding: 12px 15px; border-radius: 8px; cursor: pointer; color: #94a3b8; font-weight: 500; display: flex; align-items: center; gap: 12px; margin-bottom: 5px; transition: 0.2s; white-space: nowrap; }
         .menu li:hover, .menu li.active { background: rgba(255,255,255,0.1); color: white; }
         
         .main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
@@ -34,7 +33,7 @@
         
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
         .input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; }
-        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: #fff; }
         
         .btn-primary { background: var(--primary); color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; }
         .btn-primary:hover { background: var(--primary-dark); }
@@ -44,7 +43,6 @@
         th { background: #f1f5f9; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 12px; }
         .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .badge.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         
         .checkbox-list { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; font-size: 14px; }
     </style>
@@ -74,10 +72,10 @@
         <!-- ABA DASHBOARD -->
         <div id="aba-dashboard" class="content active">
             <div class="card">
-                <h3><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Visão Geral dos Depósitos</h3>
+                <h3><i class="fa-solid fa-warehouse" style="color: var(--primary);"></i> Depósitos - Vendas, Estoque e Caminhões</h3>
                 <table>
                     <thead>
-                        <tr><th>Depósito</th><th>Vendas Hoje</th><th>Estoque Cheias</th><th>Estoque Vazias</th><th>Defeito</th><th>Caminhão / Placa</th><th>Horário</th></tr>
+                        <tr><th>Depósito</th><th>Vendas Hoje</th><th>Estoque Cheias</th><th>Estoque Vazias</th><th>Defeito</th><th>Caminhão Fixo / Placa</th><th>Horário</th></tr>
                     </thead>
                     <tbody id="tabela-dashboard-depositos">
                         <tr><td colspan="7" style="text-align: center;">Carregando...</td></tr>
@@ -104,6 +102,11 @@
                             <option value="manual_24h">Manual 24h</option>
                         </select>
                     </div>
+                    <div class="input-group"><label>Caminhão Fixo</label>
+                        <select id="cad-caminhao-fixo">
+                            <option value="">Nenhum</option>
+                        </select>
+                    </div>
                     <div class="input-group"><label>Usuário de Acesso</label><input type="text" id="cad-usuario" placeholder="dep_norte"></div>
                     <div class="input-group"><label>Senha de Acesso</label><input type="password" id="cad-senha" placeholder="Senha"></div>
                 </div>
@@ -121,7 +124,7 @@
                 <h3><i class="fa-solid fa-truck" style="color: var(--primary);"></i> Cadastrar Caminhão / Frota</h3>
                 <div class="form-grid">
                     <div class="input-group"><label>Placa do Caminhão</label><input type="text" id="cam-placa" placeholder="ABC-1234"></div>
-                    <div class="input-group"><label>Capacidade de Botijões</label><input type="number" id="cam-capacidade" value="80"></div>
+                    <div class="input-group"><label>Capacidade (Qtd Botijões)</label><input type="number" id="cam-capacidade" value="80"></div>
                 </div>
                 <button class="btn-primary" onclick="salvarCaminhao()">Cadastrar Caminhão</button>
             </div>
@@ -130,12 +133,17 @@
         <!-- ABA RELATÓRIOS -->
         <div id="aba-relatorios" class="content">
             <div class="card">
-                <h3><i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> Gerar Relatórios Gerenciais e Financeiros</h3>
+                <h3><i class="fa-solid fa-file-invoice-dollar" style="color: var(--primary);"></i> Relatórios de Movimentação e Faturamento</h3>
                 <div class="form-grid">
+                    <div class="input-group"><label>Selecione o Depósito</label>
+                        <select id="rel-deposito">
+                            <option value="">Todos os Depósitos (Geral)</option>
+                        </select>
+                    </div>
                     <div class="input-group"><label>Data Início</label><input type="date" id="rel-inicio"></div>
                     <div class="input-group"><label>Data Fim</label><input type="date" id="rel-fim"></div>
                 </div>
-                <button class="btn-primary" onclick="gerarRelatorio()">Gerar Relatório Consolidado</button>
+                <button class="btn-primary" onclick="gerarRelatorio()">Gerar Relatório</button>
             </div>
 
             <div class="card" id="resultado-relatorio" style="display: none;">
@@ -146,7 +154,7 @@
                         <p id="rel-total-gas" style="font-size: 24px; font-weight: 700;">0 un</p>
                     </div>
                     <div style="background: #f1f5f9; padding: 15px; border-radius: 8px;">
-                        <h4 style="font-size: 13px; color: var(--muted);">Faturamento Total em Valores</h4>
+                        <h4 style="font-size: 13px; color: var(--muted);">Faturamento Total (R$)</h4>
                         <p id="rel-total-valor" style="font-size: 24px; font-weight: 700; color: var(--success);">R$ 0,00</p>
                     </div>
                 </div>
@@ -160,7 +168,7 @@
         const BACKEND_URL = 'https://gas-control-1.onrender.com';
         const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
         if (!usuarioLogado || usuarioLogado.tipo !== 'admin') window.location.href = 'index.html';
-        document.getElementById('admin-nome').innerText = usuarioLogado.nome_operador;
+        document.getElementById('admin-nome').innerText = usuarioLogado.nome_operador || 'Admin';
 
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('collapsed');
@@ -173,16 +181,20 @@
             el.classList.add('active');
             const titulos = { 'dashboard': 'Dashboard Geral', 'cadastro': 'Painel de Cadastros', 'relatorios': 'Relatórios e Auditoria' };
             document.getElementById('titulo-pagina').innerText = titulos[aba];
-            if (aba === 'dashboard') carregarDashboard();
+            if (aba === 'dashboard' || aba === 'cadastro') carregarDadosIniciais();
         }
 
-        async function carregarDashboard() {
+        async function carregarDadosIniciais() {
             try {
                 const res = await fetch(`${BACKEND_URL}/api/admin/dashboard`);
                 const data = await res.json();
                 if (res.ok) {
+                    // Preenche tabela dashboard
                     const tbody = document.getElementById('tabela-dashboard-depositos');
                     tbody.innerHTML = '';
+                    const selectDep = document.getElementById('rel-deposito');
+                    selectDep.innerHTML = '<option value="">Todos os Depósitos (Geral)</option>';
+
                     data.depositos.forEach(d => {
                         tbody.innerHTML += `
                             <tr>
@@ -195,6 +207,14 @@
                                 <td>${d.horario}</td>
                             </tr>
                         `;
+                        selectDep.innerHTML += `<option value="${d.id}">${d.nome}</option>`;
+                    });
+
+                    // Preenche select caminhões para cadastro de depósito
+                    const selectCam = document.getElementById('cad-caminhao-fixo');
+                    selectCam.innerHTML = '<option value="">Nenhum</option>';
+                    data.caminhoes.forEach(c => {
+                        selectCam.innerHTML += `<option value="${c.placa}">${c.placa} (Cap: ${c.capacidade})</option>`;
                     });
                 }
             } catch (err) { console.error(err); }
@@ -202,6 +222,7 @@
 
         async function salvarDeposito() {
             const pagamentos = Array.from(document.querySelectorAll('input[name="pag"]:checked')).map(cb => cb.value);
+            const camFix = document.getElementById('cad-caminhao-fixo').value;
             const dados = {
                 tipo: 'deposito',
                 nome: document.getElementById('cad-nome').value,
@@ -215,7 +236,7 @@
                 usuario: document.getElementById('cad-usuario').value,
                 senha: document.getElementById('cad-senha').value,
                 pagamentos: pagamentos,
-                caminhoes_fixos: ["ABC-1234"]
+                caminhoes_fixos: camFix ? [camFix] : []
             };
 
             const res = await fetch(`${BACKEND_URL}/api/admin/cadastrar-tudo`, {
@@ -223,7 +244,7 @@
             });
             const r = await res.json();
             alert(r.mensagem || r.erro);
-            if (res.ok) carregarDashboard();
+            if (res.ok) carregarDadosIniciais();
         }
 
         async function salvarCaminhao() {
@@ -234,11 +255,22 @@
             });
             const r = await res.json();
             alert(r.mensagem || r.erro);
+            if (res.ok) carregarDadosIniciais();
         }
 
         async function gerarRelatorio() {
+            const depositoId = document.getElementById('rel-deposito').value;
+            const dataInicio = document.getElementById('rel-inicio').value;
+            const dataFim = document.getElementById('rel-fim').value;
+
             const res = await fetch(`${BACKEND_URL}/api/admin/relatorios`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({})
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({
+                    depositos_ids: depositoId ? [parseInt(depositoId)] : [],
+                    data_inicio: dataInicio,
+                    data_fim: dataFim
+                })
             });
             const data = await res.json();
             if (res.ok) {
@@ -254,7 +286,12 @@
             }
         }
 
-        carregarDashboard();
+        function sair() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        carregarDadosIniciais();
     </script>
 </body>
 </html>
