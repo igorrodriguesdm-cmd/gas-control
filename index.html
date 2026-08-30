@@ -25,16 +25,12 @@
         <h2>GasControl - Acesso</h2>
         <form id="form-login">
             <div class="input-group">
-                <label>Usuário</label>
+                <label>Usuário / E-mail</label>
                 <input type="text" id="login-usuario" required placeholder="Digite seu usuário">
             </div>
             <div class="input-group">
                 <label>Senha</label>
                 <input type="password" id="login-senha" required placeholder="••••••••">
-            </div>
-            <div class="input-group">
-                <label>Seu Nome (Obrigatório para Auditoria)</label>
-                <input type="text" id="login-nome-operador" required placeholder="Digite seu nome completo">
             </div>
             <button type="submit" class="btn-submit">Entrar no Sistema</button>
             <div id="mensagem-erro"></div>
@@ -42,13 +38,13 @@
     </div>
 
     <script>
-        const BACKEND_URL = 'https://gas-control-1.onrender.com';
+        // Como o servidor é unificado, a URL base é vazia (mesmo domínio)
+        const BACKEND_URL = '';
 
         document.getElementById('form-login').addEventListener('submit', async (e) => {
             e.preventDefault();
             const usuario = document.getElementById('login-usuario').value.trim();
             const senha = document.getElementById('login-senha').value.trim();
-            const nome_operador = document.getElementById('login-nome-operador').value.trim();
             const msgErro = document.getElementById('mensagem-erro');
 
             msgErro.style.display = 'none';
@@ -57,27 +53,25 @@
                 const response = await fetch(`${BACKEND_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, senha, nome_operador })
+                    body: JSON.stringify({ usuario, senha })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    localStorage.setItem('usuario', JSON.stringify(data));
+                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
                     
-                    if (data.tipo === 'admin') {
+                    if (data.usuario.tipo === 'admin') {
                         window.location.href = 'tela_admin.html';
-                    } else if (data.tipo === 'deposito') {
+                    } else if (data.usuario.tipo === 'deposito') {
                         window.location.href = 'tela_deposito.html';
-                    } else {
-                        window.location.href = 'dashboard.html';
                     }
                 } else {
                     msgErro.innerText = data.erro || 'Credenciais inválidas.';
                     msgErro.style.display = 'block';
                 }
             } catch (err) {
-                msgErro.innerText = 'Erro ao conectar com o servidor. Verifique sua conexão.';
+                msgErro.innerText = 'Erro ao conectar com o servidor.';
                 msgErro.style.display = 'block';
             }
         });
