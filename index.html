@@ -36,6 +36,10 @@
 
         <form id="form-login">
             <div class="input-group">
+                <label>Nome do Operador</label>
+                <input type="text" id="nome_operador" required placeholder="Digite seu nome completo">
+            </div>
+            <div class="input-group">
                 <label>Usuário / Matrícula</label>
                 <input type="text" id="usuario" required placeholder="Digite seu usuário">
             </div>
@@ -52,6 +56,7 @@
 
         document.getElementById('form-login').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const nomeOperadorInput = document.getElementById('nome_operador').value.trim();
             const usuario = document.getElementById('usuario').value.trim();
             const senha = document.getElementById('senha').value.trim();
             const btnEntrar = document.getElementById('btn-entrar');
@@ -71,12 +76,11 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Normaliza os dados para garantir que nome_operador e nome existam na sessão
                     const dadosSessao = {
                         deposito_id: data.deposito_id,
                         nome: data.nome || 'Depósito',
                         tipo: data.tipo,
-                        nome_operador: data.nome_operador || data.nome || usuario
+                        nome_operador: nomeOperadorInput || data.nome_operador || usuario
                     };
 
                     localStorage.setItem('usuario', JSON.stringify(dadosSessao));
